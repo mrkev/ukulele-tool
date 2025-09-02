@@ -1,28 +1,31 @@
 import React from "react";
-import { ChordDiagram } from "./ChordDiagram";
+
+type ChordDiagram = [g: number, c: number, e: number, a: number];
 
 interface Props {
   chord: ChordDiagram;
-  frets?: number; // how many frets to display (default 4)
-  size?: number; // overall size of diagram in px (default 120)
+  name?: string; // optional chord name
+  frets?: number; // number of frets to display
+  size?: number; // overall size in px
 }
 
 export const UkuleleChord: React.FC<Props> = ({
   chord,
+  name,
   frets = 4,
   size = 120,
 }) => {
   const [g, c, e, a] = chord;
-  const stringNames = ["g", "c", "e", "a"];
   const stringMasks = [g, c, e, a];
 
   const padding = 20;
+  const labelSpace = name ? 24 : 0;
   const width = size;
-  const height = size;
+  const height = size + labelSpace;
   const innerWidth = width - padding * 2;
-  const innerHeight = height - padding * 2;
+  const innerHeight = height - padding * 2 - labelSpace;
 
-  const stringSpacing = innerWidth / (stringNames.length - 1);
+  const stringSpacing = innerWidth / (stringMasks.length - 1);
   const fretSpacing = innerHeight / frets;
 
   // Decode bitmask into fret positions
@@ -40,25 +43,38 @@ export const UkuleleChord: React.FC<Props> = ({
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      {/* Chord name */}
+      {name && (
+        <text
+          x={width / 2}
+          y={16}
+          textAnchor="middle"
+          fontSize="14"
+          fontWeight="bold"
+        >
+          {name}
+        </text>
+      )}
+
       {/* Fretboard */}
       {Array.from({ length: frets + 1 }, (_, i) => (
         <line
           key={`fret-${i}`}
           x1={padding}
           x2={width - padding}
-          y1={padding + i * fretSpacing}
-          y2={padding + i * fretSpacing}
+          y1={padding + labelSpace + i * fretSpacing}
+          y2={padding + labelSpace + i * fretSpacing}
           stroke="black"
         />
       ))}
 
       {/* Strings */}
-      {stringNames.map((s, i) => (
+      {stringMasks.map((_, i) => (
         <line
-          key={`string-${s}`}
+          key={`string-${i}`}
           x1={padding + i * stringSpacing}
           x2={padding + i * stringSpacing}
-          y1={padding}
+          y1={padding + labelSpace}
           y2={height - padding}
           stroke="black"
         />
@@ -70,7 +86,7 @@ export const UkuleleChord: React.FC<Props> = ({
           <circle
             key={`dot-${i}-${fret}`}
             cx={padding + i * stringSpacing}
-            cy={padding + fret * fretSpacing - fretSpacing / 2}
+            cy={padding + labelSpace + fret * fretSpacing - fretSpacing / 2}
             r={6}
             fill="black"
           />
@@ -83,7 +99,7 @@ export const UkuleleChord: React.FC<Props> = ({
           <text
             key={`open-${i}`}
             x={padding + i * stringSpacing}
-            y={padding - 8}
+            y={padding + labelSpace - 6}
             textAnchor="middle"
             fontSize="12"
           >

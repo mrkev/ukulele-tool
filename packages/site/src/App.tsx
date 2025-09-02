@@ -1,12 +1,12 @@
 import { useState } from "react";
 import GitHubButton from "react-github-btn";
-import { add } from "../../NEW_LIB/src";
+import { add } from "../../ukulele-tool/src";
 import "./App.css";
 
 const FOLDER_STRUCTURE = `
 docs/             built website, configure GH Pages to point here
 packages/
-  NEW_LIB/        source for the library
+  ukulele-tool/        source for the library
   site/           source code for the site
 `.trim();
 

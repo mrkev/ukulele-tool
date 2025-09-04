@@ -7,6 +7,7 @@ interface Props {
   name?: string; // optional chord name
   frets?: number; // number of frets to display
   size?: number; // overall size in px
+  className?: string;
 }
 
 export const UkuleleChord: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const UkuleleChord: React.FC<Props> = ({
   name,
   frets = 4,
   size = 120,
+  className,
 }) => {
   const [g, c, e, a] = chord;
   const stringMasks = [g, c, e, a];
@@ -42,7 +44,12 @@ export const UkuleleChord: React.FC<Props> = ({
   };
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      className={className}
+    >
       {/* Chord name */}
       {name && (
         <text

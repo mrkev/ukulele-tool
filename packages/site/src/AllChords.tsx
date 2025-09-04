@@ -1,117 +1,119 @@
-import React from "react";
-
+import { Play, Plus, Star } from "lucide-react";
+import React, { useMemo } from "react";
+import useLocalStorageState from "use-local-storage-state";
 import {
-  C,
-  C7,
-  Cm,
-  Cm7,
-  Cdim,
-  Caug,
-  C6,
-  Cmaj7,
-  C9,
-  Db,
-  Db7,
-  Dbm,
-  Dbm7,
-  Dbdim,
-  Dbaug,
-  Db6,
-  Dbmaj7,
-  Db9,
-  D,
-  D7,
-  Dm,
-  Dm7,
-  Ddim,
-  Daug,
-  D6,
-  Dmaj7,
-  D9,
-  Eb,
-  Eb7,
-  Ebm,
-  Ebm7,
-  Ebdim,
-  Ebaug,
-  Eb6,
-  Ebmaj7,
-  Eb9,
-  E,
-  E7,
-  Em,
-  Em7,
-  Edim,
-  Eaug,
-  E6,
-  Emaj7,
-  E9,
-  F,
-  F7,
-  Fm,
-  Fm7,
-  Fdim,
-  Faug,
-  F6,
-  Fmaj7,
-  F9,
-  Gb,
-  Gb7,
-  Gbm,
-  Gbm7,
-  Gbdim,
-  Gbaug,
-  Gb6,
-  Gbmaj7,
-  Gb9,
-  G,
-  G7,
-  Gm,
-  Gm7,
-  Gdim,
-  Gaug,
-  G6,
-  Gmaj7,
-  G9,
+  A,
+  A6,
+  A7,
+  A9,
+  Aaug,
   Ab,
+  Ab6,
   Ab7,
+  Ab9,
+  Abaug,
+  Abdim,
   Abm,
   Abm7,
-  Abdim,
-  Abaug,
-  Ab6,
   Abmaj7,
-  Ab9,
-  A,
-  A7,
+  Adim,
   Am,
   Am7,
-  Adim,
-  Aaug,
-  A6,
   Amaj7,
-  A9,
+  B,
+  B6,
+  B7,
+  B9,
+  Baug,
   Bb,
+  Bb6,
   Bb7,
+  Bb9,
+  Bbaug,
+  Bbdim,
   Bbm,
   Bbm7,
-  Bbdim,
-  Bbaug,
-  Bb6,
   Bbmaj7,
-  Bb9,
-  B,
-  B7,
+  Bdim,
   Bm,
   Bm7,
-  Bdim,
-  Baug,
-  B6,
   Bmaj7,
-  B9,
+  C,
+  C6,
+  C7,
+  C9,
+  Caug,
+  Cdim,
   ChordDiagram,
+  Cm,
+  Cm7,
+  Cmaj7,
+  D,
+  D6,
+  D7,
+  D9,
+  Daug,
+  Db,
+  Db6,
+  Db7,
+  Db9,
+  Dbaug,
+  Dbdim,
+  Dbm,
+  Dbm7,
+  Dbmaj7,
+  Ddim,
+  Dm,
+  Dm7,
+  Dmaj7,
+  E,
+  E6,
+  E7,
+  E9,
+  Eaug,
+  Eb,
+  Eb6,
+  Eb7,
+  Eb9,
+  Ebaug,
+  Ebdim,
+  Ebm,
+  Ebm7,
+  Ebmaj7,
+  Edim,
+  Em,
+  Em7,
+  Emaj7,
+  F,
+  F6,
+  F7,
+  F9,
+  Faug,
+  Fdim,
+  Fm,
+  Fm7,
+  Fmaj7,
+  G,
+  G6,
+  G7,
+  G9,
+  Gaug,
+  Gb,
+  Gb6,
+  Gb7,
+  Gb9,
+  Gbaug,
+  Gbdim,
+  Gbm,
+  Gbm7,
+  Gbmaj7,
+  Gdim,
+  Gm,
+  Gm7,
+  Gmaj7,
 } from "./ChordDiagram";
 import UkuleleChord from "./SVGChordDiagram";
+import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 
 const chordGroups: Record<string, [string, ChordDiagram][]> = {
   C: [
@@ -249,15 +251,60 @@ const chordGroups: Record<string, [string, ChordDiagram][]> = {
 };
 
 export const AllChords: React.FC = () => {
+  const [favsState, setFavsState] = useLocalStorageState<string[]>(
+    "ukulele-tool.favourite-chords",
+    { defaultValue: [] }
+  );
+
+  const favSet = useMemo(() => new Set(favsState), [favsState]);
+
+  const toggleFav = (value: string) => {
+    if (favSet.has(value)) {
+      setFavsState((prev) => prev.filter((x) => x !== value));
+    } else {
+      setFavsState((prev) => prev.concat(value));
+    }
+  };
+
   return (
     <div className="p-4 space-y-8">
       {Object.entries(chordGroups).map(([root, chords]) => (
         <div key={root}>
           <h2 className="text-lg font-bold mb-4">{root} family</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-9 gap-6">
-            {chords.map(([name, diagram]) => (
-              <UkuleleChord key={name} chord={diagram} name={name} size={100} />
-            ))}
+          <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-6">
+            {chords.map(([name, diagram]) => {
+              const isFav = favSet.has(name);
+              return (
+                <div
+                  className="h-48 w-32 flex flex-col items-center"
+                  key={name}
+                >
+                  <UkuleleChord
+                    chord={diagram}
+                    name={name}
+                    size={100}
+                    className="w-full h-full size-full"
+                  />
+                  <ButtonGroup variant={"outline"} size={"sm"}>
+                    {/* <ButtonGroupItem className="cursor-pointer" disabled>
+                      <Plus />
+                    </ButtonGroupItem> */}
+                    <ButtonGroupItem className="cursor-pointer" disabled>
+                      <Play />
+                    </ButtonGroupItem>
+                    <ButtonGroupItem
+                      className="cursor-pointer"
+                      onClick={() => toggleFav(name)}
+                    >
+                      <Star
+                        fill={isFav ? "orange" : "none"}
+                        stroke={isFav ? "orange" : "black"}
+                      />
+                    </ButtonGroupItem>
+                  </ButtonGroup>
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}

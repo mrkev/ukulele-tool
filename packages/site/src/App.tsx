@@ -1,8 +1,4 @@
 import AllChords from "./AllChords";
-import { ChordDiagram } from "./ChordDiagram";
-import UkuleleChord from "./SVGChordDiagram";
-
-const C: ChordDiagram = [0, 0, 0, 4];
 
 export function App() {
   return (

@@ -93,51 +93,49 @@ export const G6: ChordDiagram = [0, 2, 0, 2];
 export const Gmaj7: ChordDiagram = [0, 2, 2, 2];
 export const G9: ChordDiagram = [2, 2, 1, 2]; // [2, 2, 4, 2] sounds good, what chord is it?
 
-// todo, below this
-
 // Ab family
-export const Ab: ChordDiagram = [1, 3, 2, 3];
-export const Ab7: ChordDiagram = [1, 3, 1, 3];
-export const Abm: ChordDiagram = [1, 3, 2, 2];
-export const Abm7: ChordDiagram = [1, 3, 1, 2];
+export const Ab: ChordDiagram = [16, 4, 12, 4];
+export const Ab7: ChordDiagram = [1, 4, 2, 4];
+export const Abm: ChordDiagram = [1, 4, 8, 2];
+export const Abm7: ChordDiagram = [0, 4, 2, 2];
 export const Abdim: ChordDiagram = [1, 2, 1, 2];
 export const Abaug: ChordDiagram = [1, 0, 0, 4]; // corrected
-export const Ab6: ChordDiagram = [1, 3, 1, 3];
-export const Abmaj7: ChordDiagram = [1, 3, 3, 3];
-export const Ab9: ChordDiagram = [3, 3, 2, 3]; // corrected
+export const Ab6: ChordDiagram = [1, 4, 1, 4];
+export const Abmaj7: ChordDiagram = [1, 4, 4, 4];
+export const Ab9: ChordDiagram = [4, 4, 2, 4]; // corrected
 
 // A family
 export const A: ChordDiagram = [2, 1, 0, 0];
 export const A7: ChordDiagram = [0, 1, 0, 0];
 export const Am: ChordDiagram = [2, 0, 0, 0];
-export const Am7: ChordDiagram = [0, 0, 0, 0];
-export const Adim: ChordDiagram = [2, 3, 2, 3];
-export const Aaug: ChordDiagram = [2, 1, 1, 0]; // corrected
-export const A6: ChordDiagram = [2, 4, 2, 4];
+export const Am7: ChordDiagram = [0, 8, 4, 4];
+export const Adim: ChordDiagram = [2, 4, 2, 4];
+export const Aaug: ChordDiagram = [3, 1, 1, 1]; // corrected
+export const A6: ChordDiagram = [2, 8, 2, 8];
 export const Amaj7: ChordDiagram = [1, 1, 0, 0];
-export const A9: ChordDiagram = [2, 1, 2, 0]; // corrected
+export const A9: ChordDiagram = [0, 1, 0, 2]; // corrected
 
 // Bb family
-export const Bb: ChordDiagram = [3, 2, 1, 1];
+export const Bb: ChordDiagram = [4, 2, 1, 1];
 export const Bb7: ChordDiagram = [1, 2, 1, 1];
-export const Bbm: ChordDiagram = [3, 1, 1, 1];
+export const Bbm: ChordDiagram = [5, 1, 1, 1];
 export const Bbm7: ChordDiagram = [1, 1, 1, 1];
-export const Bbdim: ChordDiagram = [1, 2, 1, 2];
-export const Bbaug: ChordDiagram = [3, 2, 2, 1]; // corrected
-export const Bb6: ChordDiagram = [3, 5, 3, 5];
-export const Bbmaj7: ChordDiagram = [2, 2, 1, 1];
-export const Bb9: ChordDiagram = [1, 2, 1, 3]; // corrected
+export const Bbdim: ChordDiagram = [0, 1, 0, 1];
+export const Bbaug: ChordDiagram = [4, 2, 2, 1]; // corrected
+export const Bb6: ChordDiagram = [0, 2, 1, 1];
+export const Bbmaj7: ChordDiagram = [4, 2, 1, 0];
+export const Bb9: ChordDiagram = [1, 3, 1, 5]; // corrected
 
 // B family
-export const B: ChordDiagram = [4, 3, 2, 2];
-export const B7: ChordDiagram = [2, 3, 2, 2];
-export const Bm: ChordDiagram = [4, 2, 2, 2];
+export const B: ChordDiagram = [8, 4, 2, 2];
+export const B7: ChordDiagram = [2, 4, 2, 2];
+export const Bm: ChordDiagram = [10, 2, 2, 2];
 export const Bm7: ChordDiagram = [2, 2, 2, 2];
-export const Bdim: ChordDiagram = [2, 3, 2, 3];
-export const Baug: ChordDiagram = [4, 3, 3, 2]; // corrected
-export const B6: ChordDiagram = [4, 6, 4, 6];
-export const Bmaj7: ChordDiagram = [3, 3, 2, 2];
-export const B9: ChordDiagram = [2, 3, 2, 4]; // corrected
+export const Bdim: ChordDiagram = [1, 2, 1, 2];
+export const Baug: ChordDiagram = [8, 4, 4, 2]; // corrected
+export const B6: ChordDiagram = [1, 4, 2, 2];
+export const Bmaj7: ChordDiagram = [4, 4, 2, 2];
+export const B9: ChordDiagram = [2, 6, 2, 10]; // corrected
 
 export const chordGroups: Record<string, [string, ChordDiagram][]> = {
   C: [

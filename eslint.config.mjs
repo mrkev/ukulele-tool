@@ -1,62 +1,79 @@
+import eslintReact from "@eslint-react/eslint-plugin";
 import js from "@eslint/js";
-import react from "eslint-plugin-react";
+import { defineConfig, globalIgnores } from "eslint/config";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  {
-    ignores: ["dist", "docs"],
-  },
-
-  js.configs.recommended,
-  tseslint.configs.recommended,
-  react.configs.flat.recommended,
-  reactHooks.configs.flat.recommended,
+  globalIgnores(["**/dist/", "docs/"]),
 
   {
-    files: ["**/*.{ts,tsx,js,jsx}"],
-    settings: {
-      react: {
-        version: "detect",
-      },
-    },
-    plugins: {
-      react,
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-    },
+    files: ["**/*.{ts,tsx,js,jsx,mjs}"],
+
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      // TS-first replacement for eslint-plugin-react. "-typescript" is the
+      // no-type-info variant; switch to "recommended-type-checked" only if
+      // parserOptions.projectService is turned on.
+      eslintReact.configs["recommended-typescript"],
+      // Kept alongside eslint-react: these are the React team's own
+      // compiler-powered rules. eslint-react ships a
+      // "disable-conflict-eslint-plugin-react-hooks" preset if you'd rather
+      // its equivalents win instead.
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
 
     languageOptions: {
       globals: {
         ...globals.browser,
       },
 
-      parser: tsParser,
       ecmaVersion: "latest",
       sourceType: "module",
-
-      parserOptions: {
-        projectService: true, // Auto-discovers tsconfig.*.json files
-      },
     },
 
     rules: {
-      "@typescript-eslint/no-unnecessary-type-constraint": "warn",
       "@typescript-eslint/no-unused-vars": ["off", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-this-alias": "off",
       "@typescript-eslint/no-unnecessary-type-constraint": "off",
-      "react/react-in-jsx-scope": "off", // unnecessary for modern React
-      "react/no-children-prop": "off",
+
+      // eslint-react re-implements 9 rules that eslint-plugin-react-hooks also
+      // ships, so leaving both on double-reports the same issue. We keep the
+      // React team's versions, which are backed by the React Compiler's real
+      // analysis rather than AST heuristics. To flip the choice instead, extend
+      // eslintReact.configs["disable-conflict-eslint-plugin-react-hooks"]
+      // and drop this block.
+      "@eslint-react/error-boundaries": "off",
+      "@eslint-react/exhaustive-deps": "off",
+      "@eslint-react/purity": "off",
+      "@eslint-react/rules-of-hooks": "off",
+      "@eslint-react/set-state-in-effect": "off",
+      "@eslint-react/set-state-in-render": "off",
+      "@eslint-react/static-components": "off",
+      "@eslint-react/unsupported-syntax": "off",
+      "@eslint-react/use-memo": "off",
+
+      // Advisory, not blocking: shadcn/ui files export variants alongside components.
       "react-refresh/only-export-components": [
         "warn",
-        {
-          allowConstantExport: true,
-        },
+        { allowConstantExport: true },
       ],
+    },
+  },
+
+  // Config/build files run in Node, not the browser.
+  {
+    files: ["**/*.config.{ts,mjs}", "eslint.config.mjs"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   },
 ]);

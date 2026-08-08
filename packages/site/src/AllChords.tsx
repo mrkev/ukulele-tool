@@ -1,25 +1,27 @@
 import { Play, Star } from "lucide-react";
-import { useMemo } from "react";
-import useLocalStorageState from "use-local-storage-state";
-import { chordCategories, ChordDiagram, chordGroups } from "./ChordDiagram";
+import { Dispatch, SetStateAction, useMemo } from "react";
+import { ChordDiagram, chordGroups } from "./ChordDiagram";
 import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer } from "./wam/useChordPlayer";
 
-export function AllChords({ chordPlayer }: { chordPlayer: ChordPlayer }) {
-  const [favsState, setFavsState] = useLocalStorageState<string[]>(
-    "ukulele-tool.favourite-chords",
-    { defaultValue: [] }
-  );
-
-  const favSet = useMemo(() => new Set(favsState), [favsState]);
+export function AllChords({
+  chordPlayer,
+  favourites,
+  setFavouries,
+}: {
+  chordPlayer: ChordPlayer;
+  favourites: string[];
+  setFavouries: Dispatch<SetStateAction<string[]>>;
+}) {
+  const favSet = useMemo(() => new Set(favourites), [favourites]);
 
   const toggleFav = (value: string) => {
     if (favSet.has(value)) {
-      setFavsState((prev) => prev.filter((x) => x !== value));
+      setFavouries((prev) => prev.filter((x) => x !== value));
     } else {
-      setFavsState((prev) => prev.concat(value));
+      setFavouries((prev) => prev.concat(value));
     }
   };
 
@@ -35,9 +37,9 @@ export function AllChords({ chordPlayer }: { chordPlayer: ChordPlayer }) {
     ]);
 
     // if (favSet.has(value)) {
-    //   setFavsState((prev) => prev.filter((x) => x !== value));
+    //   setFavouries((prev) => prev.filter((x) => x !== value));
     // } else {
-    //   setFavsState((prev) => prev.concat(value));
+    //   setFavouries((prev) => prev.concat(value));
     // }
   };
 

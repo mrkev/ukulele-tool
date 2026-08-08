@@ -1,50 +1,62 @@
-import { fixupPluginRules } from "@eslint/compat";
-import { default as eslint } from "@eslint/js";
+import js from "@eslint/js";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config(
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+export default defineConfig([
   {
     ignores: ["dist", "docs"],
   },
+
+  js.configs.recommended,
+  tseslint.configs.recommended,
+  react.configs.flat.recommended,
+  reactHooks.configs.flat.recommended,
+
   {
-    plugins: { "react-hooks": fixupPluginRules(reactHooks) },
-    rules: reactHooks.configs.recommended.rules,
-  },
-  {
+    files: ["**/*.{ts,tsx,js,jsx}"],
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
     plugins: {
       react,
+      "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
 
     languageOptions: {
       globals: {
         ...globals.browser,
-        ...globals.node,
       },
 
+      parser: tsParser,
       ecmaVersion: "latest",
       sourceType: "module",
-    },
 
-    settings: {
-      react: { version: "detect" },
+      parserOptions: {
+        projectService: true, // Auto-discovers tsconfig.*.json files
+      },
     },
 
     rules: {
-      ...react.configs.recommended.rules,
-      ...react.configs["jsx-runtime"].rules,
-      "react/no-unescaped-entities": "off",
-      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unnecessary-type-constraint": "warn",
+      "@typescript-eslint/no-unused-vars": ["off", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-this-alias": "off",
+      "@typescript-eslint/no-unnecessary-type-constraint": "off",
+      "react/react-in-jsx-scope": "off", // unnecessary for modern React
+      "react/no-children-prop": "off",
       "react-refresh/only-export-components": [
         "warn",
-        { allowConstantExport: true },
+        {
+          allowConstantExport: true,
+        },
       ],
     },
-  }
-);
+  },
+]);

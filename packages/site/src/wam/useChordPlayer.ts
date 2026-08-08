@@ -77,7 +77,7 @@ export function useChordPlayer(): ChordPlayer {
 
         wam.audioNode.scheduleEvents({
           type: "wam-midi",
-          time: wam.audioNode.context.currentTime + 0.25,
+          time: wam.audioNode.context.currentTime + 0.35,
           // data: { bytes: new Uint8Array([0x80, 74, 100]) },
           data: { bytes: [MIDI.NOTE_OFF, note, velocity] },
         });

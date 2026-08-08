@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Emitted by the composite tsconfig.node.json projects on any typecheck
+*.tsbuildinfo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

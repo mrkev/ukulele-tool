@@ -7,7 +7,9 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["**/dist/", "docs/"]),
+  // .nx holds nx's local task cache, which contains copies of built output
+  // (docs/, dist/) that must not be linted.
+  globalIgnores(["**/dist/", "docs/", ".nx/"]),
 
   {
     files: ["**/*.{ts,tsx,js,jsx,mjs}"],

@@ -1,7 +1,15 @@
 {
   "compilerOptions": {
     "composite": true,
-    "allowSyntheticDefaultImports": true
+    // See the matching note in packages/site/tsconfig.node.json: `tsc -b` forces
+    // emit on referenced projects, so it goes somewhere harmless.
+    "outDir": "./node_modules/.tmp/tsc-node",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "strict": true
   },
   "include": ["vite.config.ts"]
 }

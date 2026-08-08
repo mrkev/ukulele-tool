@@ -22,8 +22,8 @@
     "noImplicitOverride": true,
     "types": ["vite/client"],
 
-    // components
-    "baseUrl": ".",
+    // components. No baseUrl: paths resolve relative to this file, which keeps
+    // the alias working and is forward-compatible (TS 7 removes baseUrl).
     "paths": {
       "@/*": ["./src/*"]
     }

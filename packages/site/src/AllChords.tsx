@@ -5,6 +5,7 @@ import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer } from "./audio/useChordPlayer";
+import { ChordDragHandle } from "./dnd/ChordDrag";
 
 export function AllChords({
   chordPlayer,
@@ -58,12 +59,18 @@ export function AllChords({
                   className="h-48 w-32 flex flex-col items-center"
                   key={name}
                 >
-                  <UkuleleChord
-                    chord={diagram}
+                  <ChordDragHandle
                     name={name}
-                    size={100}
-                    className="w-full h-full size-full"
-                  />
+                    diagram={diagram}
+                    className="w-full h-full"
+                  >
+                    <UkuleleChord
+                      chord={diagram}
+                      name={name}
+                      size={100}
+                      className="w-full h-full size-full"
+                    />
+                  </ChordDragHandle>
                   <ButtonGroup variant={"outline"} size={"sm"}>
                     {/* <ButtonGroupItem className="cursor-pointer" disabled>
                       <Plus />

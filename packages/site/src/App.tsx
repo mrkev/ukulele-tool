@@ -1,17 +1,7 @@
-// import {
-//   Drawer,
-//   DrawerClose,
-//   DrawerContent,
-//   DrawerDescription,
-//   DrawerFooter,
-//   DrawerHeader,
-//   DrawerTitle,
-//   DrawerTrigger,
-// } from "@/components/ui/drawer";
 import { Drawer } from "vaul";
 
-import { Play, Star } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronUp, Play, Star } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
 import AllChords from "./AllChords";
 import { ChordDiagram, chords } from "./ChordDiagram";
@@ -19,6 +9,13 @@ import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
+import { ChordDragProvider, useChordDropZone } from "./dnd/ChordDrag";
+import { cn } from "@/lib/utils";
+
+/** Resting heights of the starred drawer. The first is the peek shown during a drag. */
+const snapPoints = ["212px", "440px", 1];
+/** How long a drag-opened drawer lingers after a drop, so the chord is seen landing. */
+const DROP_LINGER_MS = 900;
 
 export function App() {
   const chordPlayer = useChordPlayer();
@@ -26,41 +23,123 @@ export function App() {
     "ukulele-tool.favourite-chords",
     { defaultValue: [] }
   );
+  const [open, setOpen] = useState(false);
+  const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
+
+  // Whether the drawer is on screen only because a drag is in progress. If the user
+  // opened it themselves, a drag must not take it away again afterwards.
+  const openedByDrag = useRef(false);
+  const openRef = useRef(open);
+  const closeTimer = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
+
+  const starChord = useCallback(
+    (name: string) => {
+      setFavsState((prev) => (prev.includes(name) ? prev : prev.concat(name)));
+    },
+    [setFavsState]
+  );
+
+  const handleDragStart = useCallback(() => {
+    window.clearTimeout(closeTimer.current);
+    if (openRef.current) return;
+    openedByDrag.current = true;
+    setSnap(snapPoints[0]);
+    setOpen(true);
+  }, []);
+
+  const handleDragEnd = useCallback((dropped: boolean) => {
+    if (!openedByDrag.current) return;
+    const close = () => {
+      openedByDrag.current = false;
+      setOpen(false);
+    };
+    if (dropped) {
+      closeTimer.current = window.setTimeout(close, DROP_LINGER_MS);
+    } else {
+      close();
+    }
+  }, []);
+
+  const toggleOpen = useCallback(() => {
+    window.clearTimeout(closeTimer.current);
+    openedByDrag.current = false;
+    setSnap(snapPoints[1]);
+    setOpen((prev) => !prev);
+  }, []);
+
+  const handleOpenChange = useCallback((next: boolean) => {
+    window.clearTimeout(closeTimer.current);
+    openedByDrag.current = false;
+    setOpen(next);
+  }, []);
 
   return (
-    <div className="p-4">
-      <div className="flex flex-row items-center">
-        <h1 className="text-xl mb-2">Ukulele Chords</h1>
-        <div className="grow"></div>
-        <FavouritesDrawer
+    <ChordDragProvider
+      onDrop={starChord}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="p-4">
+        <div className="flex flex-row items-center">
+          <h1 className="text-xl mb-2">Ukulele Chords</h1>
+          <div className="grow"></div>
+          <button
+            onClick={toggleOpen}
+            className="flex relative h-10 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 text-sm font-medium shadow-sm transition-all hover:bg-[#FAFAFA] dark:bg-[#161615] dark:hover:bg-[#1A1A19] dark:text-white"
+          >
+            <Star className="h-4 w-4" /> Starred ({favsState.length})
+            {open ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronUp className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+        <AllChords
           chordPlayer={chordPlayer}
           favourites={favsState}
-          setFavsState={setFavsState}
+          setFavouries={setFavsState}
         />
       </div>
-      <AllChords
+      <FavouritesDrawer
         chordPlayer={chordPlayer}
         favourites={favsState}
-        setFavouries={setFavsState}
+        setFavsState={setFavsState}
+        open={open}
+        onOpenChange={handleOpenChange}
+        snap={snap}
+        setSnap={setSnap}
       />
-    </div>
+    </ChordDragProvider>
   );
 }
-
-const snapPoints = ["148px", "355px", 1];
 
 function FavouritesDrawer({
   chordPlayer,
   favourites,
   setFavsState,
+  open,
+  onOpenChange,
+  snap,
+  setSnap,
 }: {
   chordPlayer: ChordPlayer;
   favourites: string[];
   setFavsState: (favs: string[]) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  snap: number | string | null;
+  setSnap: (snap: number | string | null) => void;
 }) {
-  const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
+  const { dropZoneRef, isDragging, isOver, draggingName } = useChordDropZone();
+  const expanded = snap !== snapPoints[0];
+  const alreadyStarred = draggingName != null && favourites.includes(draggingName);
+
   const playChord = (chord: ChordDiagram) => {
-    console.log("play", chord, midiOfChordDiagram(chord));
     const [g, c, e, a] = midiOfChordDiagram(chord);
 
     chordPlayer.play([
@@ -69,40 +148,77 @@ function FavouritesDrawer({
       [e, 100],
       [a, 100],
     ]);
-
-    // if (favSet.has(value)) {
-    //   setFavouries((prev) => prev.filter((x) => x !== value));
-    // } else {
-    //   setFavouries((prev) => prev.concat(value));
-    // }
   };
 
   return (
-    <Drawer.Root>
-      <Drawer.Trigger className="flex relative h-10 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 text-sm font-medium shadow-sm transition-all hover:bg-[#FAFAFA] dark:bg-[#161615] dark:hover:bg-[#1A1A19] dark:text-white">
-        <Star className="h-4 w-4" /> Starred
-      </Drawer.Trigger>
+    <Drawer.Root
+      open={open}
+      onOpenChange={onOpenChange}
+      modal={false}
+      snapPoints={snapPoints}
+      activeSnapPoint={snap}
+      setActiveSnapPoint={setSnap}
+    >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-white flex flex-col fixed bottom-0 left-0 right-0 max-h-[82vh] rounded-t-[10px]">
-          <div className="max-w-3xl w-full mx-auto overflow-auto p-4 rounded-t-[10px]">
+        <Drawer.Content
+          ref={dropZoneRef}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          className={cn(
+            "bg-white flex flex-col fixed bottom-0 left-0 right-0 h-full max-h-[97%] rounded-t-[10px] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-colors",
+            isOver
+              ? "border-orange-400 bg-orange-50"
+              : isDragging
+                ? "border-orange-300 border-dashed"
+                : "border-neutral-200"
+          )}
+        >
+          <div
+            className={cn(
+              "max-w-3xl w-full mx-auto p-4",
+              expanded ? "overflow-y-auto" : "overflow-hidden"
+            )}
+          >
             <Drawer.Handle />
-            <Drawer.Title className="font-medium text-gray-900 mt-8">
-              Starred Chords
-            </Drawer.Title>
-            <div className="grid grid-cols-4  lg:grid-cols-6">
-              {favourites.map((name) => {
-                const chord = chords[name];
+            <div className="flex flex-row items-baseline gap-2 mt-4 mb-2">
+              <Drawer.Title className="font-medium text-gray-900">
+                Starred Chords
+              </Drawer.Title>
+              <span className="text-sm text-gray-500">
+                {isDragging
+                  ? isOver
+                    ? alreadyStarred
+                      ? `${draggingName} is already starred`
+                      : `Release to star ${draggingName}`
+                    : "Drop a chord here to star it"
+                  : favourites.length > 0
+                    ? `${favourites.length} saved`
+                    : null}
+              </span>
+            </div>
 
-                return (
+            {favourites.length === 0 && !isDragging ? (
+              <p className="text-sm text-gray-500 py-6">
+                Drag a chord down here — or tap its star — to save it.
+              </p>
+            ) : (
+              <div
+                className={cn(
+                  "gap-2",
+                  expanded
+                    ? "grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7"
+                    : "flex flex-row overflow-x-auto"
+                )}
+              >
+                {favourites.map((name) => (
                   <div
-                    className="h-48 w-32 flex flex-col items-center"
+                    className="h-36 w-24 flex-shrink-0 flex flex-col items-center"
                     key={name}
                   >
                     <UkuleleChord
-                      chord={chord}
+                      chord={chords[name]}
                       name={name}
-                      size={100}
+                      size={88}
                       className="w-full h-full size-full"
                     />
                     <ButtonGroup variant={"outline"} size={"sm"}>
@@ -118,16 +234,31 @@ function FavouritesDrawer({
                           setFavsState(favourites.filter((x) => x !== name))
                         }
                       >
-                        <Star
-                          fill={true ? "orange" : "none"}
-                          stroke={true ? "orange" : "black"}
-                        />
+                        <Star fill="orange" stroke="orange" />
                       </ButtonGroupItem>
                     </ButtonGroup>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+
+                {/* Landing slot, so there is somewhere obvious to aim. */}
+                {isDragging && !alreadyStarred && (
+                  <div
+                    className={cn(
+                      "h-36 w-24 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-dashed transition-colors",
+                      isOver
+                        ? "border-orange-400 bg-orange-100"
+                        : "border-gray-300"
+                    )}
+                  >
+                    <Star
+                      className="h-6 w-6"
+                      fill={isOver ? "orange" : "none"}
+                      stroke={isOver ? "orange" : "#9ca3af"}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </Drawer.Content>
       </Drawer.Portal>

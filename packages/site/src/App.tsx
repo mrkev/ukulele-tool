@@ -67,8 +67,12 @@ export function App() {
   const toggleOpen = useCallback(() => {
     window.clearTimeout(closeTimer.current);
     openedByDrag.current = false;
+    if (openRef.current) {
+      setOpen(false);
+      return;
+    }
     setSnap(snapPoints[1]);
-    setOpen((prev) => !prev);
+    setOpen(true);
   }, []);
 
   const handleOpenChange = useCallback((next: boolean) => {
@@ -137,6 +141,24 @@ function FavouritesDrawer({
 }) {
   const { dropZoneRef, isDragging, isOver, draggingName } = useChordDropZone();
   const expanded = snap !== snapPoints[0];
+
+  // vaul never forwards `modal` to Radix's Dialog.Root, so Radix always mounts a
+  // *modal* dialog: it kills pointer events on <body> and marks the rest of the page
+  // aria-hidden. vaul only patches that up from inside its own open handler, which a
+  // controlled `open` prop never reaches — leaving the page dead and screen-reader
+  // invisible behind a drawer that is meant to be non-modal. Undo both.
+  useEffect(() => {
+    if (!open) return;
+    const reviveBackground = () => {
+      document.body.style.pointerEvents = "auto";
+      document
+        .querySelectorAll("[data-aria-hidden='true']")
+        .forEach((el) => el.removeAttribute("aria-hidden"));
+    };
+    reviveBackground();
+    const frame = window.requestAnimationFrame(reviveBackground);
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
   const alreadyStarred = draggingName != null && favourites.includes(draggingName);
 
   const playChord = (chord: ChordDiagram) => {

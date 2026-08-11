@@ -18,7 +18,7 @@ import { ChordDiagram, chords } from "./ChordDiagram";
 import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
-import { ChordPlayer, useChordPlayer } from "./wam/useChordPlayer";
+import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 
 export function App() {
   const chordPlayer = useChordPlayer();

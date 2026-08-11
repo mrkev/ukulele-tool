@@ -1,0 +1,33 @@
+* PublicD  -->  Public domain
+https://wiki.creativecommons.org/wiki/Public_domain	
+* MIT  -->  The MIT License
+https://opensource.org/licenses/MIT	
+* CC0 1.0  -->  CC0 1.0 Universal
+https://creativecommons.org/publicdomain/zero/1.0/	
+* CCS 1.0  -->  Creative Commons Sampling+ 1.0
+https://creativecommons.org/licenses/sampling+/1.0/	
+* CC BY 3.0  -->  Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+* CC BY-NC 3.0  -->  Attribution-NonCommercial 3.0 Unported
+https://creativecommons.org/licenses/by-nc/3.0/
+* CC BY-SA 2.5 SE  -->  Attribution-ShareAlike 2.5 Sweden
+https://creativecommons.org/licenses/by-sa/2.5/se/deed.en
+* CC BY-SA 3.0   -->  Attribution-ShareAlike 3.0 Unported
+https://creativecommons.org/licenses/by-sa/3.0/
+* CC BY-SA 4.0  -->  Attribution-ShareAlike 4.0 International
+https://creativecommons.org/licenses/by-sa/4.0/
+* CC BY 4.0  -->  Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/deed.en	
+* free/unknown
+Free, license not specified (unknown)
+
+
+Original samples, licences:
+
+008-024 Ukulele Stereo *HEI     *edited
+009-024 Ukulele Mono *HEI     *edited
+Ukulele by heiskr ; CC0 1.0/Public domain ; https://freesound.org/people/heiskr/packs/5315/
+
+010-024 Ukulele Stereo *HS     *edited
+011-024 Ukulele Mono *HS     *edited
+Ukulele-Hedsound sf2 sf3 ; free/unknown ; https://www.hedsound.com/2019/06/ukulele-hedsound-sf2-sf3.html

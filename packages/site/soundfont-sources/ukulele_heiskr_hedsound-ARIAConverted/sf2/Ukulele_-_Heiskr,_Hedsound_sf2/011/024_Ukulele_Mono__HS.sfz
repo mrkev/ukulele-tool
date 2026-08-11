@@ -1,0 +1,527 @@
+/*
+// **********************************************************************
+// Converted with SF22SFZ Converter v1.98
+// Copyright May  8 2025 , Plogue Art et Technologie, Inc
+// **********************************************************************
+// Conversion Date: Fri Aug  7 22:03:57 2026
+// **********************************************************************
+// Parent file    : /Users/kevin/Downloads/Ukulele_-_Heiskr__Hedsound/Ukulele - Heiskr, Hedsound.sf2
+// Soundfont      : v2.1
+// Internal Name  : Ukulele
+// Optimized for  : EMU8000
+// Editor Used    : Polyphone
+// Comments       : 008-024 Ukulele Stereo *HEI     *edited
+009-024 Ukulele Mono *HEI     *edited
+Ukulele by heiskr ; CC0 1.0 ; https://freesound.org/people/heiskr/packs/5315/
+
+010-024 Ukulele Stereo *HS     *edited
+011-024 Ukulele Mono *HS     *edited
+Ukulele-Hedsound sf2 sf3 ; free/unknown ; https://www.hedsound.com/2019/06/ukulele-hedsound-sf2-sf3.html
+*/
+<control>
+ hint_load_method=1
+ default_path=../
+ set_cc1=0     //Power-on Default Values: Modulation
+ set_cc11=127  //Power-on Default Values: Expression
+ set_cc64=0    //Power-on Default Values: Sustain Pedal
+
+<global>
+ sample=sf2_smpl.wav
+ //8.4.2 MIDI Note-On Velocity to Filter Cutoff
+ //8.4.8 MIDI Continuous Controller 91 to Reverb Effects Send
+ //8.4.9 MIDI Continuous Controller 93 to Chorus Effects Send
+ //8.4.10 MIDI Pitch Wheel to Initial Pitch Controlled by MIDI Pitch Wheel Sensitivity
+/* NOP pgen(reverbEffectsSend) = 100[100;0] */
+/* TODO reverbEffectsSend[pgen] */
+/* NOP pgen(initialAttenuation) = 0[0;0] */
+ global_volume=-0
+ lfo06_wave=0
+ lfo06_pitch=0 lfo06_pitch_oncc129=50 lfo06_pitch_oncc1=50
+ lfo06_freq=8.176
+
+ amplitude_oncc11=100 amplitude_curvecc11=7
+
+
+
+/*********************************************/
+<master>
+/* NOP pgen(modLfoToFilterFc) = -500[12;254] */
+/* TODO modLfoToFilterFc[pgen] */
+/* NOP pgen(delayModLfo) = -11959[73;209] */
+/* TODO delayModLfo[pgen] */
+/* NOP pgen(freqModLfo) = -2786[30;245] */
+/* TODO freqModLfo[pgen] */
+/* NOP pgen(instrument) = 2[2;0] */
+<group> /* 024 Ukulele *HS1 */
+/* NOP igen(sustainVolEnv) = 1440[160;5] */
+ ampeg_sustain=6.30957e-06
+/* NOP igen(releaseVolEnv) = -2400[160;246] */
+ ampeg_release=0.25
+/* NOP igen(sampleModes) = 1[1;0] */
+ loop_mode=loop_continuous
+
+<region> //zone ibag:15
+/* NOP igen(keyRange) = 10792[40;42] */
+ lokey=40 hikey=42
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3986[146;15] */
+ ampeg_decay=9.99819
+/* NOP igen(initialAttenuation) = 70[70;0] */
+ volume=-7
+/* NOP igen(overridingRootKey) = 40[40;0] */
+ pitch_keycenter=40 //overridingRootKey
+/* NOP igen(sampleId) = 6[6;0] */
+ region_label=024 Ukulele HS 040
+ tune=0
+ offset=879770 end=998026
+ loop_start=994810 loop_end=997483
+
+<region> //zone ibag:16
+/* NOP igen(keyRange) = 10537[41;41] */
+ key=41
+/* NOP igen(velRange) = 0[0;0] */
+ lovel=0 hivel=0
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3986[146;15] */
+ ampeg_decay=9.99819
+/* NOP igen(initialAttenuation) = 25[25;0] */
+ volume=-2.5
+/* NOP igen(overridingRootKey) = 41[41;0] */
+ pitch_keycenter=41 //overridingRootKey
+/* NOP igen(sampleId) = 7[7;0] */
+ region_label=024 Ukulele HS 041
+ tune=-3
+ offset=998072 end=1042104
+ loop_start=1040597 loop_end=1041605
+
+<region> //zone ibag:17
+/* NOP igen(keyRange) = 10794[42;42] */
+ key=42
+/* NOP igen(velRange) = 0[0;0] */
+ lovel=0 hivel=0
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3986[146;15] */
+ ampeg_decay=9.99819
+/* NOP igen(initialAttenuation) = 70[70;0] */
+ volume=-7
+/* NOP igen(overridingRootKey) = 42[42;0] */
+ pitch_keycenter=42 //overridingRootKey
+/* NOP igen(sampleId) = 8[8;0] */
+ region_label=024 Ukulele HS 042
+ tune=-3
+ offset=1042150 end=1119447
+ loop_start=1118013 loop_end=1118963
+
+<region> //zone ibag:18
+/* NOP igen(keyRange) = 11307[43;44] */
+ lokey=43 hikey=44
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3804[220;14] */
+ ampeg_decay=9.00047
+/* NOP igen(initialAttenuation) = 68[68;0] */
+ volume=-6.8
+/* NOP igen(overridingRootKey) = 43[43;0] */
+ pitch_keycenter=43 //overridingRootKey
+/* NOP igen(sampleId) = 9[9;0] */
+ region_label=024 Ukulele HS 043
+ tune=-1
+ offset=1119493 end=1223662
+ loop_start=1222319 loop_end=1223218
+
+<region> //zone ibag:19
+/* NOP igen(keyRange) = 12077[45;47] */
+ lokey=45 hikey=47
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3804[220;14] */
+ ampeg_decay=9.00047
+/* NOP igen(initialAttenuation) = 38[38;0] */
+ volume=-3.8
+/* NOP igen(overridingRootKey) = 47[47;0] */
+ pitch_keycenter=47 //overridingRootKey
+/* NOP igen(sampleId) = 10[10;0] */
+ region_label=024 Ukulele HS 047
+ tune=0
+ offset=1223708 end=1302800
+ loop_start=1300889 loop_end=1301959
+
+<region> //zone ibag:20
+/* NOP igen(keyRange) = 12848[48;50] */
+ lokey=48 hikey=50
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3804[220;14] */
+ ampeg_decay=9.00047
+/* NOP igen(initialAttenuation) = 80[80;0] */
+ volume=-8
+/* NOP igen(overridingRootKey) = 48[48;0] */
+ pitch_keycenter=48 //overridingRootKey
+/* NOP igen(sampleId) = 11[11;0] */
+ region_label=024 Ukulele HS 048
+ tune=0
+ offset=1302846 end=1367956
+ loop_start=1366964 loop_end=1367637
+
+<region> //zone ibag:21
+/* NOP igen(keyRange) = 13619[51;53] */
+ lokey=51 hikey=53
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3804[220;14] */
+ ampeg_decay=9.00047
+/* NOP igen(initialAttenuation) = 60[60;0] */
+ volume=-6
+/* NOP igen(overridingRootKey) = 53[53;0] */
+ pitch_keycenter=53 //overridingRootKey
+/* NOP igen(sampleId) = 12[12;0] */
+ region_label=024 Ukulele HS 053
+ tune=-1
+ offset=1368002 end=1444230
+ loop_start=1443174 loop_end=1443930
+
+<region> //zone ibag:22
+/* NOP igen(keyRange) = 13878[54;54] */
+ key=54
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3804[220;14] */
+ ampeg_decay=9.00047
+/* NOP igen(initialAttenuation) = 57[57;0] */
+ volume=-5.7
+/* NOP igen(overridingRootKey) = 54[54;0] */
+ pitch_keycenter=54 //overridingRootKey
+/* NOP igen(sampleId) = 13[13;0] */
+ region_label=024 Ukulele HS 054
+ tune=-1
+ offset=1444276 end=1501820
+ loop_start=1501068 loop_end=1501543
+
+<region> //zone ibag:23
+/* NOP igen(keyRange) = 14903[55;58] */
+ lokey=55 hikey=58
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3600[16;14] */
+ ampeg_decay=8
+/* NOP igen(initialAttenuation) = 57[57;0] */
+ volume=-5.7
+/* NOP igen(overridingRootKey) = 55[55;0] */
+ pitch_keycenter=55 //overridingRootKey
+/* NOP igen(sampleId) = 14[14;0] */
+ region_label=024 Ukulele HS 055
+ tune=-2
+ offset=1501866 end=1558972
+ loop_start=1557838 loop_end=1558737
+
+<region> //zone ibag:24
+/* NOP igen(keyRange) = 15931[59;62] */
+ lokey=59 hikey=62
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3600[16;14] */
+ ampeg_decay=8
+/* NOP igen(initialAttenuation) = 38[38;0] */
+ volume=-3.8
+/* NOP igen(overridingRootKey) = 61[61;0] */
+ pitch_keycenter=61 //overridingRootKey
+/* NOP igen(sampleId) = 15[15;0] */
+ region_label=024 Ukulele HS 061
+ tune=-1
+ offset=1559018 end=1600851
+ loop_start=1600204 loop_end=1600680
+
+<region> //zone ibag:25
+/* NOP igen(keyRange) = 17471[63;68] */
+ lokey=63 hikey=68
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3600[16;14] */
+ ampeg_decay=8
+/* NOP igen(initialAttenuation) = 13[13;0] */
+ volume=-1.3
+/* NOP igen(overridingRootKey) = 65[65;0] */
+ pitch_keycenter=65 //overridingRootKey
+/* NOP igen(sampleId) = 16[16;0] */
+ region_label=024 Ukulele HS 065
+ tune=-1
+ offset=1600897 end=1650056
+ loop_start=1649365 loop_end=1649869
+
+<region> //zone ibag:26
+/* NOP igen(keyRange) = 18757[69;73] */
+ lokey=69 hikey=73
+/* NOP igen(startAddrsOffset) = 250[250;0] */
+/* NOP igen(startAddrsCoarseOffset) = 0[0;0] */
+/* NOP igen(holdVolEnv) = -1200[80;251] */
+ ampeg_hold=0.5
+/* NOP igen(decayVolEnv) = 3369[41;13] */
+ ampeg_decay=7.0007
+/* NOP igen(initialAttenuation) = 13[13;0] */
+ volume=-1.3
+/* NOP igen(overridingRootKey) = 72[72;0] */
+ pitch_keycenter=72 //overridingRootKey
+/* NOP igen(sampleId) = 17[17;0] */
+ region_label=024 Ukulele HS 072
+ tune=1
+ offset=1650352 end=1682952
+ loop_start=1682321 loop_end=1682742
+
+<region> //zone ibag:27
+/* NOP igen(keyRange) = 19274[74;75] */
+ lokey=74 hikey=75
+/* NOP igen(startAddrsOffset) = 250[250;0] */
+/* NOP igen(startAddrsCoarseOffset) = 0[0;0] */
+/* NOP igen(holdVolEnv) = -1200[80;251] */
+ ampeg_hold=0.5
+/* NOP igen(decayVolEnv) = 3369[41;13] */
+ ampeg_decay=7.0007
+/* NOP igen(initialAttenuation) = 38[38;0] */
+ volume=-3.8
+/* NOP igen(overridingRootKey) = 75[75;0] */
+ pitch_keycenter=75 //overridingRootKey
+/* NOP igen(sampleId) = 18[18;0] */
+ region_label=024 Ukulele HS 075
+ tune=2
+ offset=1683248 end=1710901
+ loop_start=1710461 loop_end=1710744
+
+<region> //zone ibag:28
+/* NOP igen(keyRange) = 20044[76;78] */
+ lokey=76 hikey=78
+/* NOP igen(startAddrsOffset) = 150[150;0] */
+/* NOP igen(startAddrsCoarseOffset) = 0[0;0] */
+/* NOP igen(holdVolEnv) = -1200[80;251] */
+ ampeg_hold=0.5
+/* NOP igen(decayVolEnv) = 3241[169;12] */
+ ampeg_decay=6.50177
+/* NOP igen(initialAttenuation) = 42[42;0] */
+ volume=-4.2
+/* NOP igen(overridingRootKey) = 77[77;0] */
+ pitch_keycenter=77 //overridingRootKey
+/* NOP igen(sampleId) = 19[19;0] */
+ region_label=024 Ukulele HS 077
+ tune=11
+ offset=1711097 end=1743645
+ loop_start=1743233 loop_end=1743550
+
+<region> //zone ibag:29
+/* NOP igen(keyRange) = 20559[79;80] */
+ lokey=79 hikey=80
+/* NOP igen(startAddrsOffset) = 150[150;0] */
+/* NOP igen(startAddrsCoarseOffset) = 0[0;0] */
+/* NOP igen(holdVolEnv) = -1200[80;251] */
+ ampeg_hold=0.5
+/* NOP igen(decayVolEnv) = 3241[169;12] */
+ ampeg_decay=6.50177
+/* NOP igen(initialAttenuation) = 45[45;0] */
+ volume=-4.5
+/* NOP igen(overridingRootKey) = 80[80;0] */
+ pitch_keycenter=80 //overridingRootKey
+/* NOP igen(sampleId) = 20[20;0] */
+ region_label=024 Ukulele HS 080
+ tune=3
+ offset=1743841 end=1765721
+ loop_start=1765194 loop_end=1765565
+
+<region> //zone ibag:30
+/* NOP igen(keyRange) = 21841[81;85] */
+ lokey=81 hikey=85
+/* NOP igen(holdVolEnv) = -1586[206;249] */
+ ampeg_hold=0.400072
+/* NOP igen(decayVolEnv) = 3102[30;12] */
+ ampeg_decay=6.00016
+/* NOP igen(initialAttenuation) = 35[35;0] */
+ volume=-3.5
+/* NOP igen(overridingRootKey) = 82[82;0] */
+ pitch_keycenter=82 //overridingRootKey
+/* NOP igen(sampleId) = 21[21;0] */
+ region_label=024 Ukulele HS 082
+ tune=-1
+ offset=1765917 end=1785656
+ loop_start=1785178 loop_end=1785555
+
+<region> //zone ibag:31
+/* NOP igen(keyRange) = 32618[106;127] */
+ lokey=106 hikey=127
+/* NOP igen(holdVolEnv) = -1586[206;249] */
+ ampeg_hold=0.400072
+/* NOP igen(decayVolEnv) = 2786[226;10] */
+ ampeg_decay=4.99909
+/* NOP igen(initialAttenuation) = 0[0;0] */
+ volume=-0
+/* NOP igen(overridingRootKey) = 82[82;0] */
+ pitch_keycenter=82 //overridingRootKey
+/* NOP igen(sampleId) = 21[21;0] */
+ region_label=024 Ukulele HS 082
+ tune=-1
+ offset=1765917 end=1785656
+ loop_start=1785178 loop_end=1785555
+
+<region> //zone ibag:32
+/* NOP igen(keyRange) = 26981[101;105] */
+ lokey=101 hikey=105
+/* NOP igen(holdVolEnv) = -1586[206;249] */
+ ampeg_hold=0.400072
+/* NOP igen(decayVolEnv) = 2786[226;10] */
+ ampeg_decay=4.99909
+/* NOP igen(initialAttenuation) = 0[0;0] */
+ volume=-0
+/* NOP igen(overridingRootKey) = 82[82;0] */
+ pitch_keycenter=82 //overridingRootKey
+/* NOP igen(sampleId) = 21[21;0] */
+ region_label=024 Ukulele HS 082
+ tune=-1
+ offset=1765917 end=1785656
+ loop_start=1785178 loop_end=1785555
+
+<region> //zone ibag:33
+/* NOP igen(keyRange) = 25696[96;100] */
+ lokey=96 hikey=100
+/* NOP igen(holdVolEnv) = -1586[206;249] */
+ ampeg_hold=0.400072
+/* NOP igen(decayVolEnv) = 2786[226;10] */
+ ampeg_decay=4.99909
+/* NOP igen(initialAttenuation) = 5[5;0] */
+ volume=-0.5
+/* NOP igen(overridingRootKey) = 82[82;0] */
+ pitch_keycenter=82 //overridingRootKey
+/* NOP igen(sampleId) = 21[21;0] */
+ region_label=024 Ukulele HS 082
+ tune=-1
+ offset=1765917 end=1785656
+ loop_start=1785178 loop_end=1785555
+
+<region> //zone ibag:34
+/* NOP igen(keyRange) = 24411[91;95] */
+ lokey=91 hikey=95
+/* NOP igen(holdVolEnv) = -1586[206;249] */
+ ampeg_hold=0.400072
+/* NOP igen(decayVolEnv) = 2786[226;10] */
+ ampeg_decay=4.99909
+/* NOP igen(initialAttenuation) = 40[40;0] */
+ volume=-4
+/* NOP igen(overridingRootKey) = 82[82;0] */
+ pitch_keycenter=82 //overridingRootKey
+/* NOP igen(sampleId) = 21[21;0] */
+ region_label=024 Ukulele HS 082
+ tune=-1
+ offset=1765917 end=1785656
+ loop_start=1785178 loop_end=1785555
+
+<region> //zone ibag:35
+/* NOP igen(keyRange) = 23126[86;90] */
+ lokey=86 hikey=90
+/* NOP igen(holdVolEnv) = -1586[206;249] */
+ ampeg_hold=0.400072
+/* NOP igen(decayVolEnv) = 3102[30;12] */
+ ampeg_decay=6.00016
+/* NOP igen(initialAttenuation) = 40[40;0] */
+ volume=-4
+/* NOP igen(overridingRootKey) = 82[82;0] */
+ pitch_keycenter=82 //overridingRootKey
+/* NOP igen(sampleId) = 21[21;0] */
+ region_label=024 Ukulele HS 082
+ tune=-1
+ offset=1765917 end=1785656
+ loop_start=1785178 loop_end=1785555
+
+<region> //zone ibag:36
+/* NOP igen(keyRange) = 10019[35;39] */
+ lokey=35 hikey=39
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3986[146;15] */
+ ampeg_decay=9.99819
+/* NOP igen(initialAttenuation) = 70[70;0] */
+ volume=-7
+/* NOP igen(overridingRootKey) = 40[40;0] */
+ pitch_keycenter=40 //overridingRootKey
+/* NOP igen(sampleId) = 6[6;0] */
+ region_label=024 Ukulele HS 040
+ tune=0
+ offset=879920 end=998026
+ loop_start=994810 loop_end=997483
+
+<region> //zone ibag:37
+/* NOP igen(keyRange) = 8734[30;34] */
+ lokey=30 hikey=34
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3986[146;15] */
+ ampeg_decay=9.99819
+/* NOP igen(initialAttenuation) = 70[70;0] */
+ volume=-7
+/* NOP igen(overridingRootKey) = 40[40;0] */
+ pitch_keycenter=40 //overridingRootKey
+/* NOP igen(sampleId) = 6[6;0] */
+ region_label=024 Ukulele HS 040
+ tune=0
+ offset=879920 end=998026
+ loop_start=994810 loop_end=997483
+
+<region> //zone ibag:38
+/* NOP igen(keyRange) = 7449[25;29] */
+ lokey=25 hikey=29
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3986[146;15] */
+ ampeg_decay=9.99819
+/* NOP igen(initialAttenuation) = 70[70;0] */
+ volume=-7
+/* NOP igen(overridingRootKey) = 40[40;0] */
+ pitch_keycenter=40 //overridingRootKey
+/* NOP igen(sampleId) = 6[6;0] */
+ region_label=024 Ukulele HS 040
+ tune=0
+ offset=879920 end=998026
+ loop_start=994810 loop_end=997483
+
+<region> //zone ibag:39
+/* NOP igen(keyRange) = 6144[0;24] */
+ lokey=0 hikey=24
+/* NOP igen(holdVolEnv) = 0[0;0] */
+ ampeg_hold=1
+/* NOP igen(decayVolEnv) = 3986[146;15] */
+ ampeg_decay=9.99819
+/* NOP igen(initialAttenuation) = 70[70;0] */
+ volume=-7
+/* NOP igen(overridingRootKey) = 40[40;0] */
+ pitch_keycenter=40 //overridingRootKey
+/* NOP igen(sampleId) = 6[6;0] */
+ region_label=024 Ukulele HS 040
+ tune=0
+ offset=879920 end=998026
+ loop_start=994810 loop_end=997483
+
+<curve>//7 GMCurves::ConvaveLin
+ v000=0            v001=6.20001e-05  v002=0.000248     v003=0.000558001  v004=0.000992002 
+ v005=0.00155      v006=0.002232     v007=0.00303801   v008=0.00396801   v009=0.00502201  
+ v010=0.00620001   v011=0.00750202   v012=0.00892802   v013=0.010478     v014=0.012152    
+ v015=0.01395      v016=0.015872     v017=0.017918     v018=0.020088     v019=0.022382    
+ v020=0.0248       v021=0.0273421    v022=0.0300081    v023=0.0327981    v024=0.0357121   
+ v025=0.0387501    v026=0.0419121    v027=0.0451981    v028=0.0486081    v029=0.0521421   
+ v030=0.0558001    v031=0.0595821    v032=0.0634881    v033=0.0675181    v034=0.0716721   
+ v035=0.0759502    v036=0.0803522    v037=0.0848782    v038=0.0895282    v039=0.0943022   
+ v040=0.0992002    v041=0.104222     v042=0.109368     v043=0.114638     v044=0.120032    
+ v045=0.12555      v046=0.131192     v047=0.136958     v048=0.142848     v049=0.148862    
+ v050=0.155        v051=0.161262     v052=0.167648     v053=0.174158     v054=0.180792    
+ v055=0.18755      v056=0.194432     v057=0.201438     v058=0.208568     v059=0.215822    
+ v060=0.2232       v061=0.230702     v062=0.238328     v063=0.246078     v064=0.253953    
+ v065=0.261951     v066=0.270073     v067=0.278319     v068=0.286689     v069=0.295183    
+ v070=0.303801     v071=0.312543     v072=0.321409     v073=0.330399     v074=0.339513    
+ v075=0.348751     v076=0.358113     v077=0.367599     v078=0.377209     v079=0.386943    
+ v080=0.396801     v081=0.406783     v082=0.416889     v083=0.427119     v084=0.437473    
+ v085=0.447951     v086=0.458553     v087=0.469279     v088=0.480129     v089=0.491103    
+ v090=0.502201     v091=0.513423     v092=0.524769     v093=0.536239     v094=0.547833    
+ v095=0.559551     v096=0.571393     v097=0.583359     v098=0.595449     v099=0.607663    
+ v100=0.620001     v101=0.632463     v102=0.645049     v103=0.657759     v104=0.670593    
+ v105=0.683551     v106=0.696633     v107=0.709839     v108=0.723169     v109=0.736623    
+ v110=0.750202     v111=0.763904     v112=0.77773      v113=0.79168      v114=0.805754    
+ v115=0.819952     v116=0.834274     v117=0.84872      v118=0.86329      v119=0.877984    
+ v120=0.892802     v121=0.907744     v122=0.92281      v123=0.938        v124=0.953314    
+ v125=0.968752     v126=0.984314     v127=1           
+

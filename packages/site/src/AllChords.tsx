@@ -4,7 +4,7 @@ import { ChordDiagram, chordGroups } from "./ChordDiagram";
 import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
-import { ChordPlayer } from "./wam/useChordPlayer";
+import { ChordPlayer } from "./audio/useChordPlayer";
 
 export function AllChords({
   chordPlayer,

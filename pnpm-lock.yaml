@@ -59,9 +59,6 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.12
         version: 4.1.12(vite@7.1.3(@types/node@24.3.0)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.9.0))
-      '@webaudiomodules/api':
-        specifier: 2.0.0-alpha.6
-        version: 2.0.0-alpha.6
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -77,6 +74,9 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
+      spessasynth_lib:
+        specifier: ^4.3.13
+        version: 4.3.13
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -1309,9 +1309,6 @@ packages:
   '@volar/typescript@2.4.28':
     resolution: {integrity: sha512-Ja6yvWrbis2QtN4ClAKreeUZPVYMARDYZl9LMEv1iQ1QdepB6wn0jTRxA9MftYmYa4DQ4k/DaSZpFPUfxl8giw==}
 
-  '@webaudiomodules/api@2.0.0-alpha.6':
-    resolution: {integrity: sha512-GFyp7fVgNd26aFlmk7svGWtwrS1PqrwWajR+JDnbF3aSka9TteZbIcKA6lQ1D7gMc+n8h+te69h+zG5DWwYKIw==}
-
   '@yarnpkg/lockfile@1.1.0':
     resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
 
@@ -2531,8 +2528,17 @@ packages:
   spawndamnit@3.0.1:
     resolution: {integrity: sha512-MmnduQUuHCoFckZoWnXsTg7JaiLBJrKFj9UI2MbRPGaJeVpsLcVBu6P/IGZovziM/YBsellCmsprgNA+w0CzVg==}
 
+  spessasynth_core@4.3.17:
+    resolution: {integrity: sha512-izy6QR9TX7ZFOlMQzDMSLn3cYTYyXvIUGRaLrKYTMJPCiYnaJ3+3IdPaBiClR97Y4/89oEAdbMPUXpaqXCDjaw==}
+
+  spessasynth_lib@4.3.13:
+    resolution: {integrity: sha512-lDf6ImzgNvJKhRjem0ehS7lhYag/fe5UzCJutp76j2EvfpRTiYCS5xBkXOwx16YWVNuLNjPh21zWqmusKiXL8A==}
+
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
+
+  stb-vorbis@0.0.5:
+    resolution: {integrity: sha512-XZkvJDA++nsZnOV0b72L7fDP9/F5S2KnynL7zaEH8JojLzlEUXMQPyiIeViKJVF6z7b+GfcvwJN/EbHyWn8Ytw==}
 
   string-argv@0.3.2:
     resolution: {integrity: sha512-aqD2Q0144Z+/RqG52NeHEkZauTAUWJO8c6yTftGJKO3Tja5tUgIfmIl6kExvhtxSDP7fXB6DvzkfMpCd/F3G+Q==}
@@ -4097,8 +4103,6 @@ snapshots:
       path-browserify: 1.0.1
       vscode-uri: 3.1.0
 
-  '@webaudiomodules/api@2.0.0-alpha.6': {}
-
   '@yarnpkg/lockfile@1.1.0': {}
 
   '@zkochan/js-yaml@0.0.7':
@@ -5424,7 +5428,17 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
+  spessasynth_core@4.3.17:
+    dependencies:
+      stb-vorbis: 0.0.5
+
+  spessasynth_lib@4.3.13:
+    dependencies:
+      spessasynth_core: 4.3.17
+
   sprintf-js@1.0.3: {}
+
+  stb-vorbis@0.0.5: {}
 
   string-argv@0.3.2:
     optional: true

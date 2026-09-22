@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build -c vite.config.ts --emptyOutDir",
+    "build": "tsc -b && vite build -c vite.config.ts --emptyOutDir && node scripts/prerender.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -88,7 +88,7 @@ export function App() {
       onDragEnd={handleDragEnd}
     >
       <div className="p-4">
-        <div className="flex flex-row items-center">
+        <header className="flex flex-row items-center">
           <h1 className="text-xl mb-2">Ukulele Chords</h1>
           <div className="grow"></div>
           <button
@@ -102,12 +102,20 @@ export function App() {
               <ChevronUp className="h-4 w-4" />
             )}
           </button>
-        </div>
+        </header>
+        <p className="text-sm text-gray-500 max-w-2xl">
+          Diagrams for 108 ukulele chords in standard GCEA tuning. Press{" "}
+          <Play className="inline h-3 w-3 align-baseline" aria-label="play" />{" "}
+          to hear a chord, or{" "}
+          <Star className="inline h-3 w-3 align-baseline" aria-label="star" />{" "}
+          to keep it in your starred list.
+        </p>
         <AllChords
           chordPlayer={chordPlayer}
           favourites={favsState}
           setFavouries={setFavsState}
         />
+        <About />
       </div>
       <FavouritesDrawer
         chordPlayer={chordPlayer}
@@ -119,6 +127,35 @@ export function App() {
         setSnap={setSnap}
       />
     </ChordDragProvider>
+  );
+}
+
+/** Prose for people and crawlers who want to know what this is. */
+function About() {
+  return (
+    <footer className="p-4 pb-24 text-sm text-gray-500 max-w-2xl space-y-2">
+      <h2 className="font-bold text-gray-700">About this chord chart</h2>
+      <p>
+        Every chord is drawn for a ukulele in standard GCEA (C6) tuning, with
+        the strings left to right: G, C, E, A. A dot marks where to press, and
+        an O above a string means it is played open. Chords are grouped by root
+        note — C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb and B — and each root has
+        major, minor, dominant 7th, minor 7th, diminished, augmented, 6th, major
+        7th and 9th voicings.
+      </p>
+      <p>
+        Playback uses a sampled ukulele soundfont, so what you hear is a real
+        strum. Starred chords are saved in your browser and will be here the
+        next time you visit. The chart is free and open source on{" "}
+        <a
+          className="underline hover:text-gray-700"
+          href="https://github.com/mrkev/ukulele-tool"
+        >
+          GitHub
+        </a>
+        .
+      </p>
+    </footer>
   );
 }
 
@@ -247,6 +284,7 @@ function FavouritesDrawer({
                       <ButtonGroupItem
                         className="cursor-pointer"
                         onClick={() => playChord(chords[name])}
+                        aria-label={`Play ${name}`}
                       >
                         <Play />
                       </ButtonGroupItem>
@@ -255,6 +293,7 @@ function FavouritesDrawer({
                         onClick={() =>
                           setFavsState(favourites.filter((x) => x !== name))
                         }
+                        aria-label={`Unstar ${name}`}
                       >
                         <Star fill="orange" stroke="orange" />
                       </ButtonGroupItem>

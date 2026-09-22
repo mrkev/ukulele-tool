@@ -1,4 +1,5 @@
 import React from "react";
+import { describeChord } from "./chordName";
 
 type ChordDiagram = [g: number, c: number, e: number, a: number];
 
@@ -30,6 +31,10 @@ export const UkuleleChord: React.FC<Props> = ({
   const stringSpacing = innerWidth / (stringMasks.length - 1);
   const fretSpacing = innerHeight / frets;
 
+  // The diagram is only meaningful to sighted users; give everyone else the
+  // chord's name in words.
+  const label = name ? `${describeChord(name)} ukulele chord` : undefined;
+
   // Decode bitmask into fret positions
   const decodeFretPositions = (mask: number): number[] => {
     const positions: number[] = [];
@@ -49,7 +54,11 @@ export const UkuleleChord: React.FC<Props> = ({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       className={className}
+      role="img"
+      aria-label={label}
     >
+      {label && <title>{label}</title>}
+
       {/* Chord name */}
       {name && (
         <text
@@ -58,6 +67,7 @@ export const UkuleleChord: React.FC<Props> = ({
           textAnchor="middle"
           fontSize="14"
           fontWeight="bold"
+          aria-hidden="true"
         >
           {name}
         </text>
@@ -109,6 +119,7 @@ export const UkuleleChord: React.FC<Props> = ({
             y={padding + labelSpace - 6}
             textAnchor="middle"
             fontSize="12"
+            aria-hidden="true"
           >
             O
           </text>

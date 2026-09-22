@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { AsyncResult, ensureError } from "./AsyncResult";
-import { UkuleleSynth, createUkuleleSynth } from "./ukuleleSynth";
+import type { UkuleleSynth } from "./ukuleleSynth";
 
 export type ChordPlayer = {
   start: () => Promise<void>;
@@ -30,11 +30,16 @@ let synthPromise: Promise<UkuleleSynth> | null = null;
 
 function getSynth() {
   if (synthPromise == null) {
-    synthPromise = createUkuleleSynth().catch((error) => {
-      // Let the next interaction retry rather than failing for good.
-      synthPromise = null;
-      throw ensureError(error);
-    });
+    // The synth library is by far the heaviest thing we ship, and nothing on
+    // the page needs it to render. Importing it here keeps it out of the
+    // initial bundle so the chords are on screen before it starts downloading.
+    synthPromise = import("./ukuleleSynth")
+      .then(({ createUkuleleSynth }) => createUkuleleSynth())
+      .catch((error) => {
+        // Let the next interaction retry rather than failing for good.
+        synthPromise = null;
+        throw ensureError(error);
+      });
   }
   return synthPromise;
 }

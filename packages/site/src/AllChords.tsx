@@ -49,8 +49,8 @@ export function AllChords({
   return (
     <div className="p-4 space-y-8">
       {Object.entries(chordGroups).map(([root, chords]) => (
-        <div key={root}>
-          <h2 className="text-lg font-bold mb-4">{root} family</h2>
+        <section key={root} id={`${root.toLowerCase()}-chords`}>
+          <h2 className="text-lg font-bold mb-4">{root} chords</h2>
           <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-6">
             {chords.map(([name, diagram]) => {
               const isFav = favSet.has(name);
@@ -78,12 +78,15 @@ export function AllChords({
                     <ButtonGroupItem
                       className="cursor-pointer"
                       onClick={() => playChord(diagram)}
+                      aria-label={`Play ${name}`}
                     >
                       <Play />
                     </ButtonGroupItem>
                     <ButtonGroupItem
                       className="cursor-pointer"
                       onClick={() => toggleFav(name)}
+                      aria-label={isFav ? `Unstar ${name}` : `Star ${name}`}
+                      aria-pressed={isFav}
                     >
                       <Star
                         fill={isFav ? "orange" : "none"}
@@ -95,7 +98,7 @@ export function AllChords({
               );
             })}
           </div>
-        </div>
+        </section>
       ))}
     </div>
   );

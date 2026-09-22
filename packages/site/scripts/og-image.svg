@@ -1,0 +1,73 @@
+<!--
+  Source for public/og-image.png, the 1200x630 card that link previews show.
+  Regenerate with ImageMagick, pointing it at a bold font (it has no font
+  config of its own on macOS):
+
+    magick -font "/System/Library/Fonts/Supplemental/Arial Bold.ttf" -density 96 \
+      -background white MSVG:scripts/og-image.svg -depth 8 -strip public/og-image.png
+
+  Chord diagrams follow the geometry in src/SVGChordDiagram.tsx.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<rect width="1200" height="630" fill="#ffffff"/>
+<rect x="0" y="0" width="1200" height="14" fill="#fb923c"/>
+<text x="90" y="150" font-size="76" font-weight="700" fill="#111">Ukulele Chord Chart</text>
+<text x="90" y="215" font-size="34" fill="#555">108 chords in standard GCEA tuning. Tap any chord to hear it.</text>
+<text x="190.0" y="330" text-anchor="middle" font-size="40" font-weight="700">C</text>
+<line x1="120.0" x2="260.0" y1="374.0" y2="374.0" stroke="#111" stroke-width="4"/>
+<line x1="120.0" x2="260.0" y1="409.0" y2="409.0" stroke="#111" stroke-width="2"/>
+<line x1="120.0" x2="260.0" y1="444.0" y2="444.0" stroke="#111" stroke-width="2"/>
+<line x1="120.0" x2="260.0" y1="479.0" y2="479.0" stroke="#111" stroke-width="2"/>
+<line x1="120.0" x2="260.0" y1="514.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="120.0" x2="120.0" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="166.66666666666666" x2="166.66666666666666" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="213.33333333333331" x2="213.33333333333331" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="260.0" x2="260.0" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<text x="120.0" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<text x="166.66666666666666" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<text x="213.33333333333331" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<circle cx="260.0" cy="461.5" r="13" fill="#111"/>
+<text x="463.3333333333333" y="330" text-anchor="middle" font-size="40" font-weight="700">G</text>
+<line x1="393.3333333333333" x2="533.3333333333333" y1="374.0" y2="374.0" stroke="#111" stroke-width="4"/>
+<line x1="393.3333333333333" x2="533.3333333333333" y1="409.0" y2="409.0" stroke="#111" stroke-width="2"/>
+<line x1="393.3333333333333" x2="533.3333333333333" y1="444.0" y2="444.0" stroke="#111" stroke-width="2"/>
+<line x1="393.3333333333333" x2="533.3333333333333" y1="479.0" y2="479.0" stroke="#111" stroke-width="2"/>
+<line x1="393.3333333333333" x2="533.3333333333333" y1="514.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="393.3333333333333" x2="393.3333333333333" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="440.0" x2="440.0" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="486.66666666666663" x2="486.66666666666663" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="533.3333333333333" x2="533.3333333333333" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<text x="393.3333333333333" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<circle cx="440.0" cy="426.5" r="13" fill="#111"/>
+<circle cx="486.66666666666663" cy="461.5" r="13" fill="#111"/>
+<circle cx="533.3333333333333" cy="426.5" r="13" fill="#111"/>
+<text x="736.6666666666666" y="330" text-anchor="middle" font-size="40" font-weight="700">Am</text>
+<line x1="666.6666666666666" x2="806.6666666666666" y1="374.0" y2="374.0" stroke="#111" stroke-width="4"/>
+<line x1="666.6666666666666" x2="806.6666666666666" y1="409.0" y2="409.0" stroke="#111" stroke-width="2"/>
+<line x1="666.6666666666666" x2="806.6666666666666" y1="444.0" y2="444.0" stroke="#111" stroke-width="2"/>
+<line x1="666.6666666666666" x2="806.6666666666666" y1="479.0" y2="479.0" stroke="#111" stroke-width="2"/>
+<line x1="666.6666666666666" x2="806.6666666666666" y1="514.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="666.6666666666666" x2="666.6666666666666" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="713.3333333333333" x2="713.3333333333333" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="760.0" x2="760.0" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="806.6666666666666" x2="806.6666666666666" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<circle cx="666.6666666666666" cy="426.5" r="13" fill="#111"/>
+<text x="713.3333333333333" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<text x="760.0" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<text x="806.6666666666666" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<text x="1010.0" y="330" text-anchor="middle" font-size="40" font-weight="700">F</text>
+<line x1="940.0" x2="1080.0" y1="374.0" y2="374.0" stroke="#111" stroke-width="4"/>
+<line x1="940.0" x2="1080.0" y1="409.0" y2="409.0" stroke="#111" stroke-width="2"/>
+<line x1="940.0" x2="1080.0" y1="444.0" y2="444.0" stroke="#111" stroke-width="2"/>
+<line x1="940.0" x2="1080.0" y1="479.0" y2="479.0" stroke="#111" stroke-width="2"/>
+<line x1="940.0" x2="1080.0" y1="514.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="940.0" x2="940.0" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="986.6666666666666" x2="986.6666666666666" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="1033.3333333333333" x2="1033.3333333333333" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<line x1="1080.0" x2="1080.0" y1="374.0" y2="514.0" stroke="#111" stroke-width="2"/>
+<circle cx="940.0" cy="426.5" r="13" fill="#111"/>
+<text x="986.6666666666666" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<circle cx="1033.3333333333333" cy="391.5" r="13" fill="#111"/>
+<text x="1080.0" y="362.0" text-anchor="middle" font-size="22" fill="#111">O</text>
+<text x="1110" y="600" text-anchor="end" font-size="26" fill="#888">aykev.dev/ukulele-tool</text>
+</svg>

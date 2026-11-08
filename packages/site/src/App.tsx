@@ -9,7 +9,7 @@ import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
 import { SearchBar } from "./SearchBar";
-import { AboutDrawer } from "./AboutDrawer";
+import { AboutDrawer, AboutFooter } from "./AboutDrawer";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
@@ -147,6 +147,7 @@ export function App() {
             query={query}
           />
         </div>
+        <AboutFooter />
       </div>
       <SearchBar value={query} onChange={handleQueryChange} />
       <FavouritesDrawer

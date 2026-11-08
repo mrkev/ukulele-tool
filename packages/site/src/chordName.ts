@@ -14,12 +14,14 @@ const QUALITIES: Record<string, string> = {
   "9": "9th",
 };
 
+// The chart spells roots with flats, but plenty of people know (and search
+// for) these by their sharp names, so give both.
 const FLATS: Record<string, string> = {
-  Db: "D flat",
-  Eb: "E flat",
-  Gb: "G flat",
-  Ab: "A flat",
-  Bb: "B flat",
+  Db: "D flat (or C sharp)",
+  Eb: "E flat (or D sharp)",
+  Gb: "G flat (or F sharp)",
+  Ab: "A flat (or G sharp)",
+  Bb: "B flat (or A sharp)",
 };
 
 export function describeChord(symbol: string): string {

@@ -18,8 +18,6 @@ const THEMES: { value: ThemeSetting; label: string; Icon: typeof Sun }[] = [
   { value: "system", label: "System", Icon: Monitor },
 ];
 
-const REPO = "https://github.com/mrkev/ukulele-tool";
-
 export function SettingsDrawer({
   theme,
   setTheme,
@@ -111,17 +109,11 @@ function BuildInfo() {
   return (
     <p className="mt-8 text-center text-xs text-muted-foreground">
       Build{" "}
-      {dirty ? (
-        // Built with uncommitted changes, so the commit alone isn't the source.
-        <span className="font-mono">{commit}+</span>
-      ) : (
-        <a
-          className="font-mono underline hover:text-foreground"
-          href={`${REPO}/commit/${commit}`}
-        >
-          {commit}
-        </a>
-      )}
+      <span className="font-mono">
+        {commit}
+        {/* Built with uncommitted changes, so the commit alone isn't the source. */}
+        {dirty && "+"}
+      </span>
     </p>
   );
 }

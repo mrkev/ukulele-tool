@@ -19,7 +19,13 @@ export const UkuleleChord: React.FC<Props> = ({
   className,
 }) => {
   const [g, c, e, a] = chord;
-  const stringMasks = [g, c, e, a];
+  // Keyed by string name: the strings are fixed, so the name is their identity.
+  const strings = [
+    { name: "G", mask: g },
+    { name: "C", mask: c },
+    { name: "E", mask: e },
+    { name: "A", mask: a },
+  ];
 
   const padding = 20;
   const labelSpace = name ? 24 : 0;
@@ -28,7 +34,7 @@ export const UkuleleChord: React.FC<Props> = ({
   const innerWidth = width - padding * 2;
   const innerHeight = height - padding * 2 - labelSpace;
 
-  const stringSpacing = innerWidth / (stringMasks.length - 1);
+  const stringSpacing = innerWidth / (strings.length - 1);
   const fretSpacing = innerHeight / frets;
 
   // The diagram is only meaningful to sighted users; give everyone else the
@@ -86,9 +92,9 @@ export const UkuleleChord: React.FC<Props> = ({
       ))}
 
       {/* Strings */}
-      {stringMasks.map((_, i) => (
+      {strings.map((string, i) => (
         <line
-          key={`string-${i}`}
+          key={string.name}
           x1={padding + i * stringSpacing}
           x2={padding + i * stringSpacing}
           y1={padding + labelSpace}
@@ -98,10 +104,10 @@ export const UkuleleChord: React.FC<Props> = ({
       ))}
 
       {/* Dots */}
-      {stringMasks.map((mask, i) =>
-        decodeFretPositions(mask).map((fret) => (
+      {strings.map((string, i) =>
+        decodeFretPositions(string.mask).map((fret) => (
           <circle
-            key={`dot-${i}-${fret}`}
+            key={`${string.name}-${fret}`}
             cx={padding + i * stringSpacing}
             cy={padding + labelSpace + fret * fretSpacing - fretSpacing / 2}
             r={6}
@@ -111,10 +117,10 @@ export const UkuleleChord: React.FC<Props> = ({
       )}
 
       {/* Open string indicators */}
-      {stringMasks.map((mask, i) =>
-        mask === 0 ? (
+      {strings.map((string, i) =>
+        string.mask === 0 ? (
           <text
-            key={`open-${i}`}
+            key={string.name}
             x={padding + i * stringSpacing}
             y={padding + labelSpace - 6}
             textAnchor="middle"

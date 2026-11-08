@@ -1,7 +1,5 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -13,6 +11,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import type { ChordDiagram } from "../ChordDiagram";
 import UkuleleChord from "../SVGChordDiagram";
+import { ChordDragContext, useChordDragContext, type Drag } from "./chordDragContext";
 
 /** Movement (px) before a mouse press becomes a drag instead of a click. */
 const MOUSE_THRESHOLD = 6;
@@ -20,36 +19,6 @@ const MOUSE_THRESHOLD = 6;
 const TOUCH_HOLD_MS = 250;
 /** Movement (px) during the hold that cancels it — the finger is scrolling, not dragging. */
 const TOUCH_HOLD_TOLERANCE = 10;
-
-type Drag = {
-  name: string;
-  diagram: ChordDiagram;
-  /** Viewport coords of the pointer. */
-  x: number;
-  y: number;
-  /** Pointer is currently inside the drop zone. */
-  over: boolean;
-};
-
-type ChordDragContextValue = {
-  drag: Drag | null;
-  setDropZone: (el: HTMLElement | null) => void;
-  startDrag: (
-    e: ReactPointerEvent,
-    name: string,
-    diagram: ChordDiagram
-  ) => void;
-};
-
-const ChordDragContext = createContext<ChordDragContextValue | null>(null);
-
-function useChordDragContext() {
-  const ctx = useContext(ChordDragContext);
-  if (!ctx) {
-    throw new Error("Chord drag components must be inside <ChordDragProvider>");
-  }
-  return ctx;
-}
 
 export function ChordDragProvider({
   onDrop,
@@ -66,7 +35,7 @@ export function ChordDragProvider({
   children: ReactNode;
 }) {
   const [drag, setDrag] = useState<Drag | null>(null);
-  const dropZone = useRef<HTMLElement | null>(null);
+  const dropZoneRef = useRef<HTMLElement | null>(null);
 
   const onDropRef = useRef(onDrop);
   const onDragStartRef = useRef(onDragStart);
@@ -78,11 +47,11 @@ export function ChordDragProvider({
   }, [onDrop, onDragStart, onDragEnd]);
 
   const setDropZone = useCallback((el: HTMLElement | null) => {
-    dropZone.current = el;
+    dropZoneRef.current = el;
   }, []);
 
   const isOverDropZone = useCallback((x: number, y: number) => {
-    const el = dropZone.current;
+    const el = dropZoneRef.current;
     if (!el) return false;
     const r = el.getBoundingClientRect();
     return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
@@ -174,21 +143,22 @@ export function ChordDragProvider({
   );
 
   // Keep the page from selecting text under the cursor mid-drag.
+  const isDragging = drag != null;
   useEffect(() => {
-    if (!drag) return;
+    if (!isDragging) return;
     const { body } = document;
     const previous = body.style.userSelect;
     body.style.userSelect = "none";
     return () => {
       body.style.userSelect = previous;
     };
-  }, [drag != null]);
+  }, [isDragging]);
 
   return (
-    <ChordDragContext.Provider value={{ drag, setDropZone, startDrag }}>
+    <ChordDragContext value={{ drag, setDropZone, startDrag }}>
       {children}
       <ChordDragGhost drag={drag} />
-    </ChordDragContext.Provider>
+    </ChordDragContext>
   );
 }
 
@@ -248,15 +218,4 @@ export function ChordDragHandle({
       {children}
     </div>
   );
-}
-
-/** Marks an element as the target chords can be dropped on. */
-export function useChordDropZone() {
-  const { drag, setDropZone } = useChordDragContext();
-  return {
-    dropZoneRef: setDropZone,
-    isDragging: drag != null,
-    isOver: drag?.over ?? false,
-    draggingName: drag?.name ?? null,
-  };
 }

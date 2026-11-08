@@ -18,5 +18,5 @@ export function assert(value: boolean, msg?: string) {
 }
 
 export function mutablearr<T>(arr: readonly T[]): T[] {
-  return arr as any;
+  return arr as T[];
 }

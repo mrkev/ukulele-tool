@@ -9,7 +9,8 @@ import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
-import { ChordDragProvider, useChordDropZone } from "./dnd/ChordDrag";
+import { ChordDragProvider } from "./dnd/ChordDrag";
+import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
 
 /** Resting heights of the starred drawer. The first is the peek shown during a drag. */
@@ -28,13 +29,13 @@ export function App() {
 
   // Whether the drawer is on screen only because a drag is in progress. If the user
   // opened it themselves, a drag must not take it away again afterwards.
-  const openedByDrag = useRef(false);
+  const openedByDragRef = useRef(false);
   const openRef = useRef(open);
-  const closeTimer = useRef<number | undefined>(undefined);
+  const closeTimerRef = useRef<number | undefined>(undefined);
   useEffect(() => {
     openRef.current = open;
   }, [open]);
-  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
+  useEffect(() => () => window.clearTimeout(closeTimerRef.current), []);
 
   const starChord = useCallback(
     (name: string) => {
@@ -44,29 +45,29 @@ export function App() {
   );
 
   const handleDragStart = useCallback(() => {
-    window.clearTimeout(closeTimer.current);
+    window.clearTimeout(closeTimerRef.current);
     if (openRef.current) return;
-    openedByDrag.current = true;
+    openedByDragRef.current = true;
     setSnap(snapPoints[0]);
     setOpen(true);
   }, []);
 
   const handleDragEnd = useCallback((dropped: boolean) => {
-    if (!openedByDrag.current) return;
+    if (!openedByDragRef.current) return;
     const close = () => {
-      openedByDrag.current = false;
+      openedByDragRef.current = false;
       setOpen(false);
     };
     if (dropped) {
-      closeTimer.current = window.setTimeout(close, DROP_LINGER_MS);
+      closeTimerRef.current = window.setTimeout(close, DROP_LINGER_MS);
     } else {
       close();
     }
   }, []);
 
   const toggleOpen = useCallback(() => {
-    window.clearTimeout(closeTimer.current);
-    openedByDrag.current = false;
+    window.clearTimeout(closeTimerRef.current);
+    openedByDragRef.current = false;
     if (openRef.current) {
       setOpen(false);
       return;
@@ -76,8 +77,8 @@ export function App() {
   }, []);
 
   const handleOpenChange = useCallback((next: boolean) => {
-    window.clearTimeout(closeTimer.current);
-    openedByDrag.current = false;
+    window.clearTimeout(closeTimerRef.current);
+    openedByDragRef.current = false;
     setOpen(next);
   }, []);
 

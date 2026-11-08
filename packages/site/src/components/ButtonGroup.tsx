@@ -34,9 +34,9 @@ function ButtonGroup({
       )}
       {...props}
     >
-      <ButtonGroupContext.Provider value={{ variant, size }}>
+      <ButtonGroupContext value={{ variant, size }}>
         {children}
-      </ButtonGroupContext.Provider>
+      </ButtonGroupContext>
     </div>
   );
 }
@@ -48,7 +48,7 @@ function ButtonGroupItem({
   size,
   ...props
 }: React.ComponentProps<typeof Button> & VariantProps<typeof buttonVariants>) {
-  const context = React.useContext(ButtonGroupContext);
+  const context = React.use(ButtonGroupContext);
 
   return (
     <Button

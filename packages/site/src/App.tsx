@@ -10,10 +10,12 @@ import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
 import { SearchBar } from "./SearchBar";
 import { AboutDrawer } from "./AboutDrawer";
+import { SettingsDrawer } from "./SettingsDrawer";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { useWakeLock } from "@/lib/useWakeLock";
+import { useThemeSetting } from "@/lib/theme";
 
 /** Resting heights of the starred drawer. The first is the peek shown during a drag. */
 const snapPoints = ["212px", "440px", 1];
@@ -33,6 +35,7 @@ export function App() {
   // The starred drawer is where you read chords while playing, so keep the
   // screen on while it's open.
   useWakeLock(open);
+  const [theme, setTheme] = useThemeSetting();
 
   // Whether the drawer is on screen only because a drag is in progress. If the user
   // opened it themselves, a drag must not take it away again afterwards.
@@ -109,12 +112,19 @@ export function App() {
         <header className="flex flex-row items-center gap-2">
           <h1 className="text-xl">Ukulele Chords</h1>
           <div className="grow"></div>
+          <SettingsDrawer theme={theme} setTheme={setTheme} />
           <AboutDrawer />
           <button
             onClick={toggleOpen}
             className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-card px-4 text-sm font-medium text-card-foreground shadow-sm transition-all hover:bg-accent dark:ring-1 dark:ring-border"
           >
-            <Star className="h-4 w-4" /> Starred ({favsState.length})
+            <Star className="h-4 w-4" />
+            {/* Just the count on phones, so the header fits on one line. */}
+            <span>
+              <span className="max-sm:sr-only">Starred (</span>
+              {favsState.length}
+              <span className="max-sm:sr-only">)</span>
+            </span>
             {open ? (
               <ChevronDown className="h-4 w-4" />
             ) : (

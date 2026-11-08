@@ -204,13 +204,30 @@ export function ChordDragHandle({
 }) {
   const { drag, startDrag } = useChordDragContext();
   const isDragging = drag?.name === name;
+  // Pressed down on, before or during a drag: sinks slightly, as a hint that
+  // the chord can be picked up.
+  const [pressed, setPressed] = useState(false);
 
   return (
     <div
-      onPointerDown={(e) => startDrag(e, name, diagram)}
+      onPointerDown={(e) => {
+        startDrag(e, name, diagram);
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        setPressed(true);
+        const release = () => {
+          setPressed(false);
+          window.removeEventListener("pointerup", release);
+          window.removeEventListener("pointercancel", release);
+        };
+        window.addEventListener("pointerup", release);
+        window.addEventListener("pointercancel", release);
+      }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "cursor-grab touch-auto select-none [-webkit-touch-callout:none] active:cursor-grabbing",
+        "cursor-grab touch-auto select-none rounded-lg transition-[scale,background-color] duration-150 ease-out [-webkit-touch-callout:none] active:cursor-grabbing",
+        // The short delay keeps a finger that is only starting to scroll the
+        // page from flashing the style: scrolling cancels the press first.
+        pressed && "scale-95 bg-muted/60 delay-75",
         isDragging && "opacity-30",
         className
       )}

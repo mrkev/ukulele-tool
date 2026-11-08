@@ -12,6 +12,24 @@
     <link rel="canonical" href="https://aykev.dev/ukulele-tool/" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#222222" />
+    <script>
+      // Sets the theme before first paint so the page never flashes the wrong
+      // one. Mirrors applyTheme() in src/lib/theme.ts; keep the two in step.
+      (function () {
+        var setting = "system";
+        try {
+          setting = JSON.parse(localStorage.getItem("ukulele-tool.theme")) || setting;
+        } catch (e) {}
+        var dark =
+          setting === "dark" ||
+          (setting !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        var color = dark ? "#222222" : "#ffffff";
+        document.querySelectorAll('meta[name="theme-color"]').forEach(function (meta) {
+          meta.setAttribute("content", color);
+        });
+      })();
+    </script>
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Ukulele Chord Chart" />

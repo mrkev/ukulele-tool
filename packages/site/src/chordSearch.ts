@@ -15,21 +15,42 @@ const ENHARMONIC: Record<string, string> = {
   Fb: "E",
 };
 
-/** Other ways people write a chord quality, mapped to the chart's symbols. */
-function normalizeQuality(quality: string) {
-  return quality
-    .replace(/^(minor|min|-)/, "m")
-    .replace(/^\+/, "aug")
-    .replace(/^°/, "dim");
+/**
+ * Every way someone might type each quality in the chart, lowercased with no
+ * spaces. A query matches a quality when it's the start of any of these, so a
+ * half-typed word ("mi", "dimin", "aug") finds it.
+ */
+const QUALITY_NAMES: Record<string, string[]> = {
+  "": ["maj", "major"],
+  "7": ["7", "dom7", "dominant7"],
+  m: ["m", "min", "minor", "-"],
+  m7: ["m7", "min7", "minor7", "-7"],
+  dim: ["dim", "diminished", "°", "o"],
+  aug: ["aug", "augmented", "+"],
+  "6": ["6", "maj6", "major6"],
+  maj7: ["maj7", "major7", "Δ", "Δ7"],
+  "9": ["9", "dom9", "dominant9"],
+};
+
+function qualityMatches(chordQuality: string, typed: string) {
+  if (typed === "") return true;
+  if (chordQuality.toLowerCase().startsWith(typed)) return true;
+  // One character is too little to guess a word from: "m" alone means minor in
+  // chord symbols, not the start of "major". Only exact aliases like "+" count.
+  return (QUALITY_NAMES[chordQuality] ?? []).some((n) => {
+    const name = n.toLowerCase();
+    return typed.length >= 2 ? name.startsWith(typed) : name === typed;
+  });
 }
 
 /**
  * Filters the chart to the chords matching a typed query.
  *
- * A query starting with a note ("F#m", "bb7", "c minor") matches that root's
- * chords whose quality starts with the rest. Sharps find their flat spelling.
- * Anything else ("m7", "dim", "9") matches that quality across every root.
- * An empty query returns the groups unchanged.
+ * A query starting with a note ("F#m", "bb7", "d mi", "c minor 7") matches
+ * that root's chords whose quality starts with the rest, in any common
+ * spelling. Sharps find their flat spelling. Anything else ("m7", "dim",
+ * "minor") matches that quality across every root. Spaces are ignored. An
+ * empty query returns the groups unchanged.
  */
 export function searchChords(groups: ChordGroups, query: string): ChordGroups {
   const q = query
@@ -43,7 +64,7 @@ export function searchChords(groups: ChordGroups, query: string): ChordGroups {
     const result: ChordGroups = {};
     for (const [root, chords] of Object.entries(groups)) {
       const matches = chords.filter(([name]) =>
-        keep(root, name.slice(root.length).toLowerCase())
+        keep(root, name.slice(root.length))
       );
       if (matches.length > 0) result[root] = matches;
     }
@@ -55,12 +76,10 @@ export function searchChords(groups: ChordGroups, query: string): ChordGroups {
     const [, letter, accidental, rest] = note;
     const spelled = letter.toUpperCase() + accidental;
     const root = ENHARMONIC[spelled] ?? spelled;
-    const quality = normalizeQuality(rest);
-    const byRoot = filter((r, chordQuality) => r === root && chordQuality.startsWith(quality));
+    const byRoot = filter((r, quality) => r === root && qualityMatches(quality, rest));
     // "dim" and "aug" also start with a note letter; fall through to them.
     if (Object.keys(byRoot).length > 0) return byRoot;
   }
 
-  const quality = normalizeQuality(q);
-  return filter((_, chordQuality) => chordQuality !== "" && chordQuality.startsWith(quality));
+  return filter((_, quality) => qualityMatches(quality, q));
 }

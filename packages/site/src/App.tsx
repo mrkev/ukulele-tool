@@ -12,6 +12,7 @@ import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
+import { useWakeLock } from "@/lib/useWakeLock";
 
 /** Resting heights of the starred drawer. The first is the peek shown during a drag. */
 const snapPoints = ["212px", "440px", 1];
@@ -26,6 +27,9 @@ export function App() {
   );
   const [open, setOpen] = useState(false);
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
+  // The starred drawer is where you read chords while playing, so keep the
+  // screen on while it's open.
+  useWakeLock(open);
 
   // Whether the drawer is on screen only because a drag is in progress. If the user
   // opened it themselves, a drag must not take it away again afterwards.
@@ -94,7 +98,7 @@ export function App() {
           <div className="grow"></div>
           <button
             onClick={toggleOpen}
-            className="flex relative h-10 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 text-sm font-medium shadow-sm transition-all hover:bg-[#FAFAFA] dark:bg-[#161615] dark:hover:bg-[#1A1A19] dark:text-white"
+            className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 text-sm font-medium shadow-sm transition-all hover:bg-[#FAFAFA] dark:bg-[#161615] dark:hover:bg-[#1A1A19] dark:text-white"
           >
             <Star className="h-4 w-4" /> Starred ({favsState.length})
             {open ? (
@@ -272,14 +276,17 @@ function FavouritesDrawer({
               >
                 {favourites.map((name) => (
                   <div
-                    className="h-36 w-24 flex-shrink-0 flex flex-col items-center"
+                    className={cn(
+                      "flex flex-col items-center",
+                      expanded ? "w-full max-w-24 mx-auto" : "w-24 shrink-0"
+                    )}
                     key={name}
                   >
                     <UkuleleChord
                       chord={chords[name]}
                       name={name}
                       size={88}
-                      className="w-full h-full size-full"
+                      className="w-full h-auto"
                     />
                     <ButtonGroup variant={"outline"} size={"sm"}>
                       <ButtonGroupItem

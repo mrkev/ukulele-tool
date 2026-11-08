@@ -1,5 +1,3 @@
-import { Drawer } from "vaul";
-
 import { ChevronDown, ChevronUp, Play, Star } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
@@ -14,6 +12,7 @@ import { SearchBar } from "./SearchBar";
 import { AboutDrawer } from "./AboutDrawer";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { useWakeLock } from "@/lib/useWakeLock";
 
 /** Resting heights of the starred drawer. The first is the peek shown during a drag. */
@@ -166,24 +165,8 @@ function FavouritesDrawer({
   const { dropZoneRef, isDragging, isOver, draggingName } = useChordDropZone();
   const expanded = snap !== snapPoints[0];
 
-  // vaul never forwards `modal` to Radix's Dialog.Root, so Radix always mounts a
-  // *modal* dialog: it kills pointer events on <body> and marks the rest of the page
-  // aria-hidden. vaul only patches that up from inside its own open handler, which a
-  // controlled `open` prop never reaches — leaving the page dead and screen-reader
-  // invisible behind a drawer that is meant to be non-modal. Undo both.
-  useEffect(() => {
-    if (!open) return;
-    const reviveBackground = () => {
-      document.body.style.pointerEvents = "auto";
-      document
-        .querySelectorAll("[data-aria-hidden='true']")
-        .forEach((el) => el.removeAttribute("aria-hidden"));
-    };
-    reviveBackground();
-    const frame = window.requestAnimationFrame(reviveBackground);
-    return () => window.cancelAnimationFrame(frame);
-  }, [open]);
-  const alreadyStarred = draggingName != null && favourites.includes(draggingName);
+  const alreadyStarred =
+    draggingName != null && favourites.includes(draggingName);
 
   const playChord = (chord: ChordDiagram) => {
     const [g, c, e, a] = midiOfChordDiagram(chord);
@@ -197,124 +180,126 @@ function FavouritesDrawer({
   };
 
   return (
-    <Drawer.Root
+    <Drawer
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(next) => onOpenChange(next)}
+      // The chart stays usable behind it: play, star and drag chords in.
       modal={false}
+      disablePointerDismissal
       snapPoints={snapPoints}
-      activeSnapPoint={snap}
-      setActiveSnapPoint={setSnap}
+      snapPoint={snap}
+      onSnapPointChange={setSnap}
+      showSwipeHandle
     >
-      <Drawer.Portal>
-        <Drawer.Content
-          ref={dropZoneRef}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          onCloseAutoFocus={(e) => e.preventDefault()}
+      <DrawerContent
+        ref={dropZoneRef}
+        swipeFromContent
+        // Opening it must not pull focus (and the keyboard) away from the page.
+        initialFocus={false}
+        finalFocus={false}
+        className={cn(
+          "bg-card text-card-foreground [--drawer-bleed-background:var(--card)] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]",
+          isOver
+            ? // Tint mixed into the card colour: the drawer must stay opaque.
+              "border-star bg-[color-mix(in_oklab,var(--star)_12%,var(--card))]"
+            : isDragging
+              ? "border-star/60 border-dashed"
+              : "border-border"
+        )}
+      >
+        <div
           className={cn(
-            "bg-card text-card-foreground z-40 flex flex-col fixed bottom-0 left-0 right-0 h-full max-h-[97%] rounded-t-[10px] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-colors",
-            isOver
-              ? // Tint mixed into the card colour: the drawer must stay opaque.
-                "border-star bg-[color-mix(in_oklab,var(--star)_12%,var(--card))]"
-              : isDragging
-                ? "border-star/60 border-dashed"
-                : "border-border"
+            "max-w-3xl w-full mx-auto p-4 pt-2",
+            expanded ? "overflow-y-auto" : "overflow-hidden"
           )}
         >
-          <div
-            className={cn(
-              "max-w-3xl w-full mx-auto p-4",
-              expanded ? "overflow-y-auto" : "overflow-hidden"
-            )}
-          >
-            <Drawer.Handle />
-            <div className="flex flex-row items-baseline gap-2 mt-4 mb-2">
-              <Drawer.Title className="font-medium">
-                Starred Chords
-              </Drawer.Title>
-              <span className="text-sm text-muted-foreground">
-                {isDragging
-                  ? isOver
-                    ? alreadyStarred
-                      ? `${draggingName} is already starred`
-                      : `Release to star ${draggingName}`
-                    : "Drop a chord here to star it"
-                  : favourites.length > 0
-                    ? `${favourites.length} saved`
-                    : null}
-              </span>
-            </div>
-
-            {favourites.length === 0 && !isDragging ? (
-              <p className="text-sm text-muted-foreground py-6">
-                Drag a chord down here — or tap its star — to save it.
-              </p>
-            ) : (
-              <div
-                className={cn(
-                  "gap-2",
-                  expanded
-                    ? "grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7"
-                    : "flex flex-row overflow-x-auto"
-                )}
-              >
-                {favourites.map((name) => (
-                  <div
-                    className={cn(
-                      "flex flex-col items-center",
-                      expanded ? "w-full max-w-24 mx-auto" : "w-24 shrink-0"
-                    )}
-                    key={name}
-                  >
-                    <UkuleleChord
-                      chord={chords[name]}
-                      name={name}
-                      size={88}
-                      className="w-full h-auto"
-                    />
-                    <ButtonGroup variant={"outline"} size={"sm"}>
-                      <ButtonGroupItem
-                        className="cursor-pointer"
-                        onClick={() => playChord(chords[name])}
-                        aria-label={`Play ${name}`}
-                      >
-                        <Play />
-                      </ButtonGroupItem>
-                      <ButtonGroupItem
-                        className="cursor-pointer"
-                        onClick={() =>
-                          setFavsState(favourites.filter((x) => x !== name))
-                        }
-                        aria-label={`Unstar ${name}`}
-                      >
-                        <Star className="fill-star stroke-star" />
-                      </ButtonGroupItem>
-                    </ButtonGroup>
-                  </div>
-                ))}
-
-                {/* Landing slot, so there is somewhere obvious to aim. */}
-                {isDragging && !alreadyStarred && (
-                  <div
-                    className={cn(
-                      "h-36 w-24 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-dashed transition-colors",
-                      isOver
-                        ? "border-star bg-star/15"
-                        : "border-muted-foreground/40"
-                    )}
-                  >
-                    <Star
-                      className={cn(
-                        "h-6 w-6",
-                        isOver ? "fill-star stroke-star" : "stroke-muted-foreground"
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
+          <div className="flex flex-row items-baseline gap-2 mb-2">
+            <DrawerTitle>Starred Chords</DrawerTitle>
+            <span className="text-sm text-muted-foreground">
+              {isDragging
+                ? isOver
+                  ? alreadyStarred
+                    ? `${draggingName} is already starred`
+                    : `Release to star ${draggingName}`
+                  : "Drop a chord here to star it"
+                : favourites.length > 0
+                  ? `${favourites.length} saved`
+                  : null}
+            </span>
           </div>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+
+          {favourites.length === 0 && !isDragging ? (
+            <p className="text-sm text-muted-foreground py-6">
+              Drag a chord down here — or tap its star — to save it.
+            </p>
+          ) : (
+            <div
+              className={cn(
+                "gap-2",
+                expanded
+                  ? "grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7"
+                  : "flex flex-row overflow-x-auto"
+              )}
+            >
+              {favourites.map((name) => (
+                <div
+                  className={cn(
+                    "flex flex-col items-center",
+                    expanded ? "w-full max-w-24 mx-auto" : "w-24 shrink-0"
+                  )}
+                  key={name}
+                >
+                  <UkuleleChord
+                    chord={chords[name]}
+                    name={name}
+                    size={88}
+                    className="w-full h-auto"
+                  />
+                  <ButtonGroup variant={"outline"} size={"sm"}>
+                    <ButtonGroupItem
+                      className="cursor-pointer"
+                      onClick={() => playChord(chords[name])}
+                      aria-label={`Play ${name}`}
+                    >
+                      <Play />
+                    </ButtonGroupItem>
+                    <ButtonGroupItem
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setFavsState(favourites.filter((x) => x !== name))
+                      }
+                      aria-label={`Unstar ${name}`}
+                    >
+                      <Star className="fill-star stroke-star" />
+                    </ButtonGroupItem>
+                  </ButtonGroup>
+                </div>
+              ))}
+
+              {/* Landing slot, so there is somewhere obvious to aim. */}
+              {isDragging && !alreadyStarred && (
+                <div
+                  className={cn(
+                    "h-36 w-24 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-dashed transition-colors",
+                    isOver
+                      ? "border-star bg-star/15"
+                      : "border-muted-foreground/40"
+                  )}
+                >
+                  <Star
+                    className={cn(
+                      "h-6 w-6",
+                      isOver
+                        ? "fill-star stroke-star"
+                        : "stroke-muted-foreground"
+                    )}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

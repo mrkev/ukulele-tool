@@ -168,7 +168,7 @@ function ChordDragGhost({ drag }: { drag: Drag | null }) {
 
   return createPortal(
     <div
-      className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2"
+      className="pointer-events-none fixed z-[60] -translate-x-1/2 -translate-y-1/2"
       style={{ left: drag.x, top: drag.y }}
     >
       <div

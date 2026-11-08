@@ -52,7 +52,7 @@ export function AllChords({
 
   return (
     // Right padding keeps the last column clear of the fixed root index.
-    <div className="py-4 pr-3 sm:px-4">
+    <div className="py-4 pr-3 sm:px-4 lg:pr-8">
       <RootIndex roots={roots} />
       <div className="space-y-8">
         {Object.entries(chordGroups).map(([root, chords]) => (

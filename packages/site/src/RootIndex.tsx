@@ -98,7 +98,8 @@ export function RootIndex({ roots }: { roots: string[] }) {
       onPointerUp={endScrub}
       onPointerCancel={endScrub}
       className={cn(
-        "fixed right-0 top-1/2 z-10 w-7 -translate-y-1/2 touch-none select-none rounded-l-xl py-2 transition-colors",
+        // Inset on wide screens, clear of thick desktop scrollbars.
+        "fixed right-0 lg:right-4 top-1/2 z-10 w-7 -translate-y-1/2 touch-none select-none rounded-l-xl lg:rounded-xl py-2 transition-colors",
         scrubIndex !== null && "bg-gray-100/90"
       )}
     >

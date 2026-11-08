@@ -98,7 +98,7 @@ export function App() {
           <div className="grow"></div>
           <button
             onClick={toggleOpen}
-            className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 text-sm font-medium shadow-sm transition-all hover:bg-[#FAFAFA] dark:bg-[#161615] dark:hover:bg-[#1A1A19] dark:text-white"
+            className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-card px-4 text-sm font-medium text-card-foreground shadow-sm transition-all hover:bg-accent dark:ring-1 dark:ring-border"
           >
             <Star className="h-4 w-4" /> Starred ({favsState.length})
             {open ? (
@@ -108,7 +108,7 @@ export function App() {
             )}
           </button>
         </header>
-        <p className="text-sm text-gray-500 max-w-2xl">
+        <p className="text-sm text-muted-foreground max-w-2xl">
           Diagrams for 108 ukulele chords in standard GCEA tuning. Press{" "}
           <Play className="inline h-3 w-3 align-baseline" aria-label="play" />{" "}
           to hear a chord, or{" "}
@@ -138,8 +138,8 @@ export function App() {
 /** Prose for people and crawlers who want to know what this is. */
 function About() {
   return (
-    <footer className="p-4 pr-10 pb-24 text-sm text-gray-500 max-w-2xl space-y-2">
-      <h2 className="font-bold text-gray-700">About this chord chart</h2>
+    <footer className="p-4 pr-10 pb-24 text-sm text-muted-foreground max-w-2xl space-y-2">
+      <h2 className="font-bold text-foreground">About this chord chart</h2>
       <p>
         Every chord is drawn for a ukulele in standard GCEA (C6) tuning, with
         the strings left to right: G, C, E, A. A dot marks where to press, and
@@ -153,7 +153,7 @@ function About() {
         strum. Starred chords are saved in your browser and will be here the
         next time you visit. The chart is free and open source on{" "}
         <a
-          className="underline hover:text-gray-700"
+          className="underline hover:text-foreground"
           href="https://github.com/mrkev/ukulele-tool"
         >
           GitHub
@@ -229,12 +229,13 @@ function FavouritesDrawer({
           onOpenAutoFocus={(e) => e.preventDefault()}
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={cn(
-            "bg-white flex flex-col fixed bottom-0 left-0 right-0 h-full max-h-[97%] rounded-t-[10px] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-colors",
+            "bg-card text-card-foreground flex flex-col fixed bottom-0 left-0 right-0 h-full max-h-[97%] rounded-t-[10px] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-colors",
             isOver
-              ? "border-orange-400 bg-orange-50"
+              ? // Tint mixed into the card colour: the drawer must stay opaque.
+                "border-star bg-[color-mix(in_oklab,var(--star)_12%,var(--card))]"
               : isDragging
-                ? "border-orange-300 border-dashed"
-                : "border-neutral-200"
+                ? "border-star/60 border-dashed"
+                : "border-border"
           )}
         >
           <div
@@ -245,10 +246,10 @@ function FavouritesDrawer({
           >
             <Drawer.Handle />
             <div className="flex flex-row items-baseline gap-2 mt-4 mb-2">
-              <Drawer.Title className="font-medium text-gray-900">
+              <Drawer.Title className="font-medium">
                 Starred Chords
               </Drawer.Title>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-muted-foreground">
                 {isDragging
                   ? isOver
                     ? alreadyStarred
@@ -262,7 +263,7 @@ function FavouritesDrawer({
             </div>
 
             {favourites.length === 0 && !isDragging ? (
-              <p className="text-sm text-gray-500 py-6">
+              <p className="text-sm text-muted-foreground py-6">
                 Drag a chord down here — or tap its star — to save it.
               </p>
             ) : (
@@ -303,7 +304,7 @@ function FavouritesDrawer({
                         }
                         aria-label={`Unstar ${name}`}
                       >
-                        <Star fill="orange" stroke="orange" />
+                        <Star className="fill-star stroke-star" />
                       </ButtonGroupItem>
                     </ButtonGroup>
                   </div>
@@ -315,14 +316,15 @@ function FavouritesDrawer({
                     className={cn(
                       "h-36 w-24 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-dashed transition-colors",
                       isOver
-                        ? "border-orange-400 bg-orange-100"
-                        : "border-gray-300"
+                        ? "border-star bg-star/15"
+                        : "border-muted-foreground/40"
                     )}
                   >
                     <Star
-                      className="h-6 w-6"
-                      fill={isOver ? "orange" : "none"}
-                      stroke={isOver ? "orange" : "#9ca3af"}
+                      className={cn(
+                        "h-6 w-6",
+                        isOver ? "fill-star stroke-star" : "stroke-muted-foreground"
+                      )}
                     />
                   </div>
                 )}

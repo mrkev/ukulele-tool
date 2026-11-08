@@ -62,6 +62,9 @@ export const UkuleleChord: React.FC<Props> = ({
       className={className}
       role="img"
       aria-label={label}
+      // Lines, dots and labels all follow the text colour, so the diagram
+      // works in light and dark themes.
+      fill="currentColor"
     >
       {label && <title>{label}</title>}
 
@@ -87,7 +90,7 @@ export const UkuleleChord: React.FC<Props> = ({
           x2={width - padding}
           y1={padding + labelSpace + i * fretSpacing}
           y2={padding + labelSpace + i * fretSpacing}
-          stroke="black"
+          stroke="currentColor"
         />
       ))}
 
@@ -99,7 +102,7 @@ export const UkuleleChord: React.FC<Props> = ({
           x2={padding + i * stringSpacing}
           y1={padding + labelSpace}
           y2={height - padding}
-          stroke="black"
+          stroke="currentColor"
         />
       ))}
 
@@ -111,7 +114,7 @@ export const UkuleleChord: React.FC<Props> = ({
             cx={padding + i * stringSpacing}
             cy={padding + labelSpace + fret * fretSpacing - fretSpacing / 2}
             r={6}
-            fill="black"
+            fill="currentColor"
           />
         ))
       )}

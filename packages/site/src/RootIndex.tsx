@@ -100,7 +100,7 @@ export function RootIndex({ roots }: { roots: string[] }) {
       className={cn(
         // Inset on wide screens, clear of thick desktop scrollbars.
         "fixed right-0 lg:right-4 top-1/2 z-10 w-7 -translate-y-1/2 touch-none select-none rounded-l-xl lg:rounded-xl py-2 transition-colors",
-        scrubIndex !== null && "bg-gray-100/90"
+        scrubIndex !== null && "bg-muted/90"
       )}
     >
       <ol ref={listRef} className="flex h-[min(360px,70dvh)] flex-col">
@@ -120,7 +120,7 @@ export function RootIndex({ roots }: { roots: string[] }) {
                 }}
                 className={cn(
                   "flex w-full items-center justify-center text-[11px] font-semibold",
-                  active ? "text-orange-500" : "text-gray-500"
+                  active ? "text-star" : "text-muted-foreground"
                 )}
               >
                 {root}
@@ -129,7 +129,7 @@ export function RootIndex({ roots }: { roots: string[] }) {
               {scrubIndex !== null && active && (
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute right-full top-1/2 mr-4 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-gray-900 text-xl font-semibold text-white shadow-lg"
+                  className="pointer-events-none absolute right-full top-1/2 mr-4 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-foreground text-xl font-semibold text-background shadow-lg"
                 >
                   {root}
                 </span>

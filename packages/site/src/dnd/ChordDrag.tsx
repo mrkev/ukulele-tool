@@ -173,10 +173,10 @@ function ChordDragGhost({ drag }: { drag: Drag | null }) {
     >
       <div
         className={cn(
-          "rounded-xl border-2 bg-white p-1 shadow-xl transition-transform",
+          "rounded-xl border-2 bg-card p-1 text-card-foreground shadow-xl transition-transform",
           drag.over
-            ? "scale-110 border-orange-400 ring-4 ring-orange-200"
-            : "scale-100 rotate-3 border-neutral-300"
+            ? "scale-110 border-star ring-4 ring-star/30"
+            : "scale-100 rotate-3 border-border"
         )}
       >
         <UkuleleChord chord={drag.diagram} name={drag.name} size={96} />

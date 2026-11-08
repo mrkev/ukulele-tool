@@ -97,8 +97,7 @@ export function AllChords({
                         aria-pressed={isFav}
                       >
                         <Star
-                          fill={isFav ? "orange" : "none"}
-                          stroke={isFav ? "orange" : "black"}
+                          className={isFav ? "fill-star stroke-star" : undefined}
                         />
                       </ButtonGroupItem>
                     </ButtonGroup>

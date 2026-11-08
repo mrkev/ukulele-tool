@@ -72,17 +72,11 @@ export function SettingsDrawer({
   );
 }
 
-/** Which build is running: the commit it was made from, and when. */
+/** Which build is running: the commit it was made from. */
 function BuildInfo() {
   const commit: string = import.meta.env.VITE_BUILD_COMMIT;
   const dirty: boolean = import.meta.env.VITE_BUILD_DIRTY;
-  const time = new Date(import.meta.env.VITE_BUILD_TIME);
   if (!commit) return null;
-
-  const date = time.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
 
   return (
     <p className="mt-8 text-center text-xs text-muted-foreground">
@@ -97,8 +91,7 @@ function BuildInfo() {
         >
           {commit}
         </a>
-      )}{" "}
-      · {date}
+      )}
     </p>
   );
 }

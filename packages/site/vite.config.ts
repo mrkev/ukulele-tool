@@ -29,7 +29,6 @@ export default defineConfig({
     "import.meta.env.VITE_BUILD_DIRTY": JSON.stringify(
       git("status --porcelain -- .") !== ""
     ),
-    "import.meta.env.VITE_BUILD_TIME": JSON.stringify(new Date().toISOString()),
   },
 
   // components

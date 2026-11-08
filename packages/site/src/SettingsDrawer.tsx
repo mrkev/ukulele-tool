@@ -1,5 +1,6 @@
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
+import { Switch } from "@base-ui/react/switch";
 import { Monitor, Moon, Settings, Sun } from "lucide-react";
 
 import {
@@ -9,6 +10,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import type { ThemeSetting } from "@/lib/theme";
+import { canPlayInSilentMode } from "@/lib/silentModePlayback";
 
 const THEMES: { value: ThemeSetting; label: string; Icon: typeof Sun }[] = [
   { value: "light", label: "Light", Icon: Sun },
@@ -21,9 +23,13 @@ const REPO = "https://github.com/mrkev/ukulele-tool";
 export function SettingsDrawer({
   theme,
   setTheme,
+  silentModePlayback,
+  setSilentModePlayback,
 }: {
   theme: ThemeSetting;
   setTheme: (theme: ThemeSetting) => void;
+  silentModePlayback: boolean;
+  setSilentModePlayback: (enabled: boolean) => void;
 }) {
   return (
     <Drawer showSwipeHandle>
@@ -64,6 +70,30 @@ export function SettingsDrawer({
               </Radio.Root>
             ))}
           </RadioGroup>
+
+          {/* Only browsers with the Audio Session API (Safari) can do this. */}
+          {canPlayInSilentMode() && (
+            <div className="mt-6">
+              {/* A <label>, not just a click on the switch's <span>: the
+                  drawer's swipe-to-dismiss leaves labels alone. */}
+              <label className="flex cursor-pointer items-center justify-between gap-4">
+                <span className="text-sm font-medium">Play in silent mode</span>
+                <Switch.Root
+                  checked={silentModePlayback}
+                  onCheckedChange={setSilentModePlayback}
+                  className="relative flex h-7 w-12 shrink-0 rounded-full bg-input p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/50 data-checked:bg-star"
+                >
+                  <Switch.Thumb className="size-6 rounded-full bg-white shadow-sm transition-transform data-checked:translate-x-5" />
+                </Switch.Root>
+              </label>
+              <p className="mt-2 text-sm text-muted-foreground">
+                If you can't hear chords, your phone may be on silent: turn
+                this on, or turn silent mode off. While it's on, playing a
+                chord pauses any other audio, like music you're playing along
+                to.
+              </p>
+            </div>
+          )}
 
           <BuildInfo />
         </div>

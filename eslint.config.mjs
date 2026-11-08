@@ -33,17 +33,19 @@ export default defineConfig([
       globals: {
         ...globals.browser,
       },
-
-      ecmaVersion: "latest",
-      sourceType: "module",
     },
 
     rules: {
-      "@typescript-eslint/no-unused-vars": ["off", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-this-alias": "off",
-      "@typescript-eslint/no-unnecessary-type-constraint": "off",
+      // tsconfig leaves noUnusedLocals/noUnusedParameters off, so this is the
+      // only thing catching dead code. Prefix with _ to keep something on purpose.
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
 
       // eslint-react re-implements 9 rules that eslint-plugin-react-hooks also
       // ships, so leaving both on double-reports the same issue. We keep the
@@ -60,18 +62,22 @@ export default defineConfig([
       "@eslint-react/static-components": "off",
       "@eslint-react/unsupported-syntax": "off",
       "@eslint-react/use-memo": "off",
-
-      // Advisory, not blocking: shadcn/ui files export variants alongside components.
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
     },
   },
 
-  // Config/build files run in Node, not the browser.
+  // shadcn/ui components are vendored as generated and export their cva
+  // variants next to the component. Splitting them out would fight every
+  // `shadcn add` update; the cost is only a full reload when editing these.
   {
-    files: ["**/*.config.{ts,mjs}", "eslint.config.mjs"],
+    files: ["packages/site/src/components/ui/**"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
+
+  // Config and build scripts run in Node, not the browser.
+  {
+    files: ["**/*.config.{ts,mjs}", "packages/*/scripts/**/*.{js,mjs}"],
     languageOptions: {
       globals: {
         ...globals.node,

@@ -11,6 +11,7 @@ import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
 import { SearchBar } from "./SearchBar";
+import { AboutDrawer } from "./AboutDrawer";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
 import { useWakeLock } from "@/lib/useWakeLock";
@@ -104,10 +105,12 @@ export function App() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="p-4">
-        <header className="flex flex-row items-center">
-          <h1 className="text-xl mb-2">Ukulele Chords</h1>
+      {/* Bottom padding keeps the last row clear of the floating search bar. */}
+      <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+        <header className="flex flex-row items-center gap-2">
+          <h1 className="text-xl">Ukulele Chords</h1>
           <div className="grow"></div>
+          <AboutDrawer />
           <button
             onClick={toggleOpen}
             className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-card px-4 text-sm font-medium text-card-foreground shadow-sm transition-all hover:bg-accent dark:ring-1 dark:ring-border"
@@ -120,13 +123,6 @@ export function App() {
             )}
           </button>
         </header>
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          Diagrams for 108 ukulele chords in standard GCEA tuning. Press{" "}
-          <Play className="inline h-3 w-3 align-baseline" aria-label="play" />{" "}
-          to hear a chord, or{" "}
-          <Star className="inline h-3 w-3 align-baseline" aria-label="star" />{" "}
-          to keep it in your starred list.
-        </p>
         <div ref={chartRef} className="scroll-mt-2">
           <AllChords
             chordPlayer={chordPlayer}
@@ -135,7 +131,6 @@ export function App() {
             query={query}
           />
         </div>
-        <About />
       </div>
       <SearchBar value={query} onChange={handleQueryChange} />
       <FavouritesDrawer
@@ -148,35 +143,6 @@ export function App() {
         setSnap={setSnap}
       />
     </ChordDragProvider>
-  );
-}
-
-/** Prose for people and crawlers who want to know what this is. */
-function About() {
-  return (
-    <footer className="p-4 pr-10 pb-[calc(env(safe-area-inset-bottom)+7rem)] text-sm text-muted-foreground max-w-2xl space-y-2">
-      <h2 className="font-bold text-foreground">About this chord chart</h2>
-      <p>
-        Every chord is drawn for a ukulele in standard GCEA (C6) tuning, with
-        the strings left to right: G, C, E, A. A dot marks where to press, and
-        an O above a string means it is played open. Chords are grouped by root
-        note — C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb and B — and each root has
-        major, minor, dominant 7th, minor 7th, diminished, augmented, 6th, major
-        7th and 9th voicings.
-      </p>
-      <p>
-        Playback uses a sampled ukulele soundfont, so what you hear is a real
-        strum. Starred chords are saved in your browser and will be here the
-        next time you visit. The chart is free and open source on{" "}
-        <a
-          className="underline hover:text-foreground"
-          href="https://github.com/mrkev/ukulele-tool"
-        >
-          GitHub
-        </a>
-        .
-      </p>
-    </footer>
   );
 }
 

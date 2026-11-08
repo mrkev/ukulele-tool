@@ -10,6 +10,7 @@ import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
+import { SearchBar } from "./SearchBar";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
 import { useWakeLock } from "@/lib/useWakeLock";
@@ -26,6 +27,8 @@ export function App() {
     { defaultValue: [] }
   );
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const chartRef = useRef<HTMLDivElement>(null);
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
   // The starred drawer is where you read chords while playing, so keep the
   // screen on while it's open.
@@ -80,6 +83,15 @@ export function App() {
     setOpen(true);
   }, []);
 
+  const handleQueryChange = useCallback((next: string) => {
+    setQuery(next);
+    // Results start at the top of the chart; bring it back if scrolled past.
+    const chart = chartRef.current;
+    if (chart && chart.getBoundingClientRect().top < 0) {
+      chart.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+  }, []);
+
   const handleOpenChange = useCallback((next: boolean) => {
     window.clearTimeout(closeTimerRef.current);
     openedByDragRef.current = false;
@@ -115,13 +127,17 @@ export function App() {
           <Star className="inline h-3 w-3 align-baseline" aria-label="star" />{" "}
           to keep it in your starred list.
         </p>
-        <AllChords
-          chordPlayer={chordPlayer}
-          favourites={favsState}
-          setFavouries={setFavsState}
-        />
+        <div ref={chartRef} className="scroll-mt-2">
+          <AllChords
+            chordPlayer={chordPlayer}
+            favourites={favsState}
+            setFavouries={setFavsState}
+            query={query}
+          />
+        </div>
         <About />
       </div>
+      <SearchBar value={query} onChange={handleQueryChange} />
       <FavouritesDrawer
         chordPlayer={chordPlayer}
         favourites={favsState}
@@ -138,7 +154,7 @@ export function App() {
 /** Prose for people and crawlers who want to know what this is. */
 function About() {
   return (
-    <footer className="p-4 pr-10 pb-24 text-sm text-muted-foreground max-w-2xl space-y-2">
+    <footer className="p-4 pr-10 pb-[calc(env(safe-area-inset-bottom)+7rem)] text-sm text-muted-foreground max-w-2xl space-y-2">
       <h2 className="font-bold text-foreground">About this chord chart</h2>
       <p>
         Every chord is drawn for a ukulele in standard GCEA (C6) tuning, with
@@ -229,7 +245,7 @@ function FavouritesDrawer({
           onOpenAutoFocus={(e) => e.preventDefault()}
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={cn(
-            "bg-card text-card-foreground flex flex-col fixed bottom-0 left-0 right-0 h-full max-h-[97%] rounded-t-[10px] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-colors",
+            "bg-card text-card-foreground z-40 flex flex-col fixed bottom-0 left-0 right-0 h-full max-h-[97%] rounded-t-[10px] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-colors",
             isOver
               ? // Tint mixed into the card colour: the drawer must stay opaque.
                 "border-star bg-[color-mix(in_oklab,var(--star)_12%,var(--card))]"

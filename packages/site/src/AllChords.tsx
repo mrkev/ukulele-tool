@@ -1,6 +1,7 @@
 import { Play, Star } from "lucide-react";
 import { Dispatch, SetStateAction, useMemo } from "react";
 import { ChordDiagram, chordGroups } from "./ChordDiagram";
+import { searchChords } from "./chordSearch";
 import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
@@ -13,8 +14,11 @@ export function AllChords({
   chordPlayer,
   favourites,
   setFavouries,
+  query,
 }: {
   chordPlayer: ChordPlayer;
+  /** Search text; the chart shows only matching chords. */
+  query: string;
   favourites: string[];
   setFavouries: Dispatch<SetStateAction<string[]>>;
 }) {
@@ -48,14 +52,21 @@ export function AllChords({
 
   console.log(chordPlayer.status);
 
-  const roots = Object.keys(chordGroups);
+  const groups = useMemo(() => searchChords(chordGroups, query), [query]);
+  const roots = useMemo(() => Object.keys(groups), [groups]);
 
   return (
     // Right padding keeps the last column clear of the fixed root index.
     <div className="py-4 pr-3 sm:px-4 lg:pr-8">
       <RootIndex roots={roots} />
+      {roots.length === 0 && (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          No chords match “{query.trim()}”. Try a root like F#, or a type like
+          m7 or dim.
+        </p>
+      )}
       <div className="space-y-8">
-        {Object.entries(chordGroups).map(([root, chords]) => (
+        {Object.entries(groups).map(([root, chords]) => (
           <section
             key={root}
             id={sectionId(root)}

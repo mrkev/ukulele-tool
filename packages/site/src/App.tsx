@@ -138,7 +138,7 @@ export function App() {
 /** Prose for people and crawlers who want to know what this is. */
 function About() {
   return (
-    <footer className="p-4 pb-24 text-sm text-gray-500 max-w-2xl space-y-2">
+    <footer className="p-4 pr-10 pb-24 text-sm text-gray-500 max-w-2xl space-y-2">
       <h2 className="font-bold text-gray-700">About this chord chart</h2>
       <p>
         Every chord is drawn for a ukulele in standard GCEA (C6) tuning, with

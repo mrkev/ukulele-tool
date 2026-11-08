@@ -6,6 +6,8 @@ import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragHandle } from "./dnd/ChordDrag";
+import { RootIndex } from "./RootIndex";
+import { sectionId } from "./sections";
 
 export function AllChords({
   chordPlayer,
@@ -49,18 +51,18 @@ export function AllChords({
   const roots = Object.keys(chordGroups);
 
   return (
-    <div className="py-4 sm:px-4">
-      <RootNav roots={roots} />
+    // Right padding keeps the last column clear of the fixed root index.
+    <div className="py-4 pr-3 sm:px-4">
+      <RootIndex roots={roots} />
       <div className="space-y-8">
         {Object.entries(chordGroups).map(([root, chords]) => (
           <section
             key={root}
             id={sectionId(root)}
-            // Land the heading below the sticky root bar, not under it.
-            className="scroll-mt-16"
+            className="scroll-mt-4"
           >
             <h2 className="text-lg font-bold mb-4">{root} chords</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-x-3 gap-y-6 sm:gap-6">
+            <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-x-2 gap-y-6 sm:gap-6">
               {chords.map(([name, diagram]) => {
                 const isFav = favSet.has(name);
                 return (
@@ -108,36 +110,6 @@ export function AllChords({
         ))}
       </div>
     </div>
-  );
-}
-
-function sectionId(root: string) {
-  return `${root.toLowerCase()}-chords`;
-}
-
-/**
- * Jump links to each root's section. Sticks to the top so any chord is a tap
- * and a short scroll away instead of a dozen screens of scrolling.
- */
-function RootNav({ roots }: { roots: string[] }) {
-  return (
-    <nav
-      aria-label="Chord roots"
-      className="sticky top-0 z-10 -mx-4 mb-4 bg-white/95 px-4 py-2 backdrop-blur-sm sm:-mx-8 sm:px-8"
-    >
-      <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none]">
-        {roots.map((root) => (
-          <li key={root} className="shrink-0">
-            <a
-              href={`#${sectionId(root)}`}
-              className="flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-medium text-gray-700 hover:bg-gray-100 pointer-coarse:h-11 pointer-coarse:min-w-11"
-            >
-              {root}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
   );
 }
 

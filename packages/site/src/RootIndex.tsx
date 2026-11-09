@@ -3,8 +3,18 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { cn } from "@/lib/utils";
 import { sectionId } from "./sections";
 
-/** How far below the top of the viewport a section must reach to count as current. */
-const ACTIVE_OFFSET = 96;
+/**
+ * How far below the sticky header (see --sticky-top) a section must reach to
+ * count as current.
+ */
+const ACTIVE_MARGIN = 24;
+
+function activeOffset() {
+  const stickyTop = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue("--sticky-top")
+  );
+  return (Number.isNaN(stickyTop) ? 72 : stickyTop) + ACTIVE_MARGIN;
+}
 
 /**
  * A vertical index of chord roots down the right edge, like the A–Z strip in a
@@ -30,10 +40,11 @@ export function RootIndex({ roots }: { roots: string[] }) {
       const atBottom =
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - 2;
+      const offset = activeOffset();
       let current = roots[0];
       for (const root of roots) {
         const el = document.getElementById(sectionId(root));
-        if (el && (atBottom || el.getBoundingClientRect().top <= ACTIVE_OFFSET)) {
+        if (el && (atBottom || el.getBoundingClientRect().top <= offset)) {
           current = root;
         }
       }

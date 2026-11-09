@@ -64,8 +64,15 @@ export function AllChords({
       )}
       <div className="space-y-8">
         {Object.entries(groups).map(([root, chords]) => (
-          <section key={root} id={sectionId(root)} className="scroll-mt-4">
-            <h2 className="text-lg font-bold mb-4">{root} chords</h2>
+          <section
+            key={root}
+            id={sectionId(root)}
+            className="scroll-mt-(--sticky-top)"
+          >
+            {/* Sticks below the header while its chords scroll by. */}
+            <h2 className="sticky top-(--sticky-top) z-[5] mb-2 bg-background/80 py-2 text-lg font-bold backdrop-blur-md">
+              {root} chords
+            </h2>
             <div className={CHORD_GRID}>
               {chords.map(([name, diagram]) => (
                 <ChordCard key={name} name={name} diagram={diagram} draggable>

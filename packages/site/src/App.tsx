@@ -1,5 +1,11 @@
 import { ChevronDown, ChevronUp, Play, Star } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { Tabs } from "@base-ui/react/tabs";
 import useLocalStorageState from "use-local-storage-state";
 import AllChords from "./AllChords";
@@ -38,7 +44,9 @@ export function App() {
   const [tab, setTab] = useState<Tab>("all");
   /** The set open in the Sets tab; null shows the list of sets. */
   const [openSetId, setOpenSetId] = useState<string | null>(null);
-  const chartRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const scrolled = useScrolled();
+  useStickyTop(stickyRef);
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
   // The starred drawer is where you read chords while playing, so keep the
   // screen on while it's open.
@@ -95,12 +103,12 @@ export function App() {
     setOpen(true);
   }, []);
 
-  /** Brings the top of the current view back into sight, if scrolled past. */
+  /**
+   * Brings the top of the current view back into sight. It starts just below
+   * the sticky header, so that's the top of the page.
+   */
   const scrollToTop = useCallback(() => {
-    const chart = chartRef.current;
-    if (chart && chart.getBoundingClientRect().top < 0) {
-      chart.scrollIntoView({ block: "start", behavior: "instant" });
-    }
+    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
   const handleQueryChange = useCallback(
@@ -148,56 +156,68 @@ export function App() {
       {/* Bottom padding keeps the last row clear of the phone's floating tab
           bar. Wider screens have tabs and search at the top instead. */}
       <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-4">
-        <header className="flex flex-row items-center gap-2">
-          <h1 className="text-xl">Ukulele Chords</h1>
-          <div className="grow"></div>
-          <HeaderSearch value={query} onChange={handleQueryChange} />
-          <SettingsDrawer
-            theme={theme}
-            setTheme={setTheme}
-            silentModePlayback={silentModePlayback}
-            setSilentModePlayback={setSilentModePlayback}
-          />
-          <button
-            onClick={toggleOpen}
-            className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-card px-4 text-sm font-medium text-card-foreground shadow-sm transition-all hover:bg-accent dark:ring-1 dark:ring-border"
-          >
-            <Star className="h-4 w-4" />
-            {/* Just the count on phones, so the header fits on one line. */}
-            <span>
-              <span className="max-sm:sr-only">Starred (</span>
-              {favsState.length}
-              <span className="max-sm:sr-only">)</span>
-            </span>
-            {open ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronUp className="h-4 w-4" />
-            )}
-          </button>
-        </header>
         <Tabs.Root
           value={tab}
           onValueChange={(value) => handleTabChange(value as Tab)}
         >
-          {/* Wider screens' tabs. Phones use the tab bar at the bottom. */}
-          <Tabs.List className="mt-4 hidden gap-6 border-b border-border px-4 md:flex">
-            {TABS.map(({ value, label }) => (
-              <Tabs.Tab
-                key={value}
-                value={value}
-                // Picking the current tab doesn't change the value; still
-                // let it go back to the tab's top level.
-                onClick={() => {
-                  if (value === tab) handleTabChange(value);
-                }}
-                className="-mb-px cursor-pointer border-b-2 border-transparent py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:underline data-active:border-foreground data-active:text-foreground"
+          {/* Stays at the top while the page scrolls. Its height is kept in
+              --sticky-top, for what sticks or scrolls to just below it. */}
+          <div
+            ref={stickyRef}
+            className={cn(
+              "sticky top-0 z-30 -mx-4 -mt-4 border-b border-transparent bg-background/80 px-4 pt-3 pb-3 backdrop-blur-md transition-colors md:pb-0",
+              // A hairline once content scrolls under it; on wider screens the
+              // tabs' own underline does this.
+              scrolled && "max-md:border-border"
+            )}
+          >
+            <header className="flex flex-row items-center gap-2">
+              <h1 className="text-xl">Ukulele Chords</h1>
+              <div className="grow"></div>
+              <HeaderSearch value={query} onChange={handleQueryChange} />
+              <SettingsDrawer
+                theme={theme}
+                setTheme={setTheme}
+                silentModePlayback={silentModePlayback}
+                setSilentModePlayback={setSilentModePlayback}
+              />
+              <button
+                onClick={toggleOpen}
+                className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-card px-4 text-sm font-medium text-card-foreground shadow-sm transition-all hover:bg-accent dark:ring-1 dark:ring-border"
               >
-                {label}
-              </Tabs.Tab>
-            ))}
-          </Tabs.List>
-          <div ref={chartRef} className="scroll-mt-2">
+                <Star className="h-4 w-4" />
+                {/* Just the count on phones, so the header fits on one line. */}
+                <span>
+                  <span className="max-sm:sr-only">Starred (</span>
+                  {favsState.length}
+                  <span className="max-sm:sr-only">)</span>
+                </span>
+                {open ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </button>
+            </header>
+            {/* Wider screens' tabs. Phones use the tab bar at the bottom. */}
+            <Tabs.List className="mt-3 hidden gap-6 border-b border-border px-4 md:flex">
+              {TABS.map(({ value, label }) => (
+                <Tabs.Tab
+                  key={value}
+                  value={value}
+                  // Picking the current tab doesn't change the value; still
+                  // let it go back to the tab's top level.
+                  onClick={() => {
+                    if (value === tab) handleTabChange(value);
+                  }}
+                  className="-mb-px cursor-pointer border-b-2 border-transparent py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:underline data-active:border-foreground data-active:text-foreground"
+                >
+                  {label}
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </div>
+          <div>
             <Tabs.Panel value="all" className="outline-none">
               <AllChords
                 chordPlayer={chordPlayer}
@@ -236,6 +256,37 @@ export function App() {
       />
     </ChordDragProvider>
   );
+}
+
+/** Whether the page is scrolled down at all. */
+function useScrolled() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 0);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+  return scrolled;
+}
+
+/**
+ * Keeps --sticky-top on <html> at the sticky header's height, for the chart's
+ * root headings to stick below it and for jumps to sections to land below it.
+ */
+function useStickyTop(ref: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      document.documentElement.style.setProperty(
+        "--sticky-top",
+        `${el.offsetHeight}px`
+      );
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
 }
 
 function FavouritesDrawer({

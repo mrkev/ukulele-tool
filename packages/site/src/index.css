@@ -122,6 +122,8 @@
 @layer base {
   :root {
     color-scheme: light;
+    /* The sticky header's height; measured and kept up to date by App. */
+    --sticky-top: 4.25rem;
   }
   * {
     @apply border-border outline-ring/50;

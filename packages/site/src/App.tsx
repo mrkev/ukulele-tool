@@ -36,6 +36,8 @@ export function App() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<Tab>("all");
+  /** The set open in the Sets tab; null shows the list of sets. */
+  const [openSetId, setOpenSetId] = useState<string | null>(null);
   const chartRef = useRef<HTMLDivElement>(null);
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
   // The starred drawer is where you read chords while playing, so keep the
@@ -93,25 +95,43 @@ export function App() {
     setOpen(true);
   }, []);
 
-  const handleQueryChange = useCallback((next: string) => {
-    setQuery(next);
-    // Search finds chords in the chart, so typing goes back to it.
-    if (next.trim() !== "") setTab("all");
-    // Results start at the top of the chart; bring it back if scrolled past.
+  /** Brings the top of the current view back into sight, if scrolled past. */
+  const scrollToTop = useCallback(() => {
     const chart = chartRef.current;
     if (chart && chart.getBoundingClientRect().top < 0) {
       chart.scrollIntoView({ block: "start", behavior: "instant" });
     }
   }, []);
 
-  const handleTabChange = useCallback((next: Tab) => {
-    setTab(next);
-    // Each view starts at its top.
-    const chart = chartRef.current;
-    if (chart && chart.getBoundingClientRect().top < 0) {
-      chart.scrollIntoView({ block: "start", behavior: "instant" });
-    }
-  }, []);
+  const handleQueryChange = useCallback(
+    (next: string) => {
+      setQuery(next);
+      // Search finds chords in the chart, so typing goes back to it.
+      if (next.trim() !== "") setTab("all");
+      // Results start at the top of the chart.
+      scrollToTop();
+    },
+    [scrollToTop]
+  );
+
+  const handleTabChange = useCallback(
+    (next: Tab) => {
+      // Like iOS: picking the tab you're on goes back to its top level.
+      if (next === tab && next === "sets") setOpenSetId(null);
+      setTab(next);
+      // Each view starts at its top.
+      scrollToTop();
+    },
+    [tab, scrollToTop]
+  );
+
+  const handleOpenSet = useCallback(
+    (id: string | null) => {
+      setOpenSetId(id);
+      scrollToTop();
+    },
+    [scrollToTop]
+  );
 
   const handleOpenChange = useCallback((next: boolean) => {
     window.clearTimeout(closeTimerRef.current);
@@ -166,6 +186,11 @@ export function App() {
               <Tabs.Tab
                 key={value}
                 value={value}
+                // Picking the current tab doesn't change the value; still
+                // let it go back to the tab's top level.
+                onClick={() => {
+                  if (value === tab) handleTabChange(value);
+                }}
                 className="-mb-px cursor-pointer border-b-2 border-transparent py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:underline data-active:border-foreground data-active:text-foreground"
               >
                 {label}
@@ -186,6 +211,8 @@ export function App() {
                 chordPlayer={chordPlayer}
                 favourites={favsState}
                 setFavourites={setFavsState}
+                openSetId={openSetId}
+                onOpenSet={handleOpenSet}
               />
             </Tabs.Panel>
           </div>

@@ -1,6 +1,7 @@
 import {
   ChevronLeft,
   ChevronRight,
+  ListMusic,
   Pencil,
   Plus,
   Star,
@@ -11,6 +12,7 @@ import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { flushSync } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   useChordSets,
   type ChordSet,
@@ -22,28 +24,45 @@ import { ChordPicker } from "./ChordPicker";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { ChordPlayer } from "./audio/useChordPlayer";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
+import UkuleleChord from "./SVGChordDiagram";
 
 const UNTITLED = "Untitled set";
 
 const countLabel = (n: number) => (n === 1 ? "1 chord" : `${n} chords`);
 
+/** The starred chords' place among the sets' ids. */
+const STARRED_ID = "starred";
+
 /**
- * Chords gathered into sets, one section each: the starred chords first, then
- * the user's own sets, which they can make, name, fill and put in order.
+ * Chords gathered into sets: the starred chords, then the user's own, which
+ * they can make, name, fill and put in order. The tab lists them (a grid of
+ * cards on wider screens); opening one shows its chords.
  */
 export function Sets({
   chordPlayer,
   favourites,
   setFavourites,
+  openSetId,
+  onOpenSet,
 }: {
   chordPlayer: ChordPlayer;
   favourites: string[];
   setFavourites: Dispatch<SetStateAction<string[]>>;
+  /** The open set's id, or null for the list. */
+  openSetId: string | null;
+  onOpenSet: (id: string | null) => void;
 }) {
   const [sets, actions] = useChordSets();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pickerId, setPickerId] = useState<string | null>(null);
   const starred = useMemo(() => new Set(favourites), [favourites]);
+
+  // Leaving a set, however it happens, finishes editing it.
+  const [shownSetId, setShownSetId] = useState(openSetId);
+  if (openSetId !== shownSetId) {
+    setShownSetId(openSetId);
+    if (editingId !== openSetId) setEditingId(null);
+  }
 
   const play = (name: string) => {
     const [g, c, e, a] = midiOfChordDiagram(chords[name]);
@@ -67,6 +86,7 @@ export function Sets({
     // eslint-disable-next-line @eslint-react/dom-no-flush-sync
     flushSync(() => {
       id = actions.create("New set");
+      onOpenSet(id);
       setEditingId(id);
     });
     const name = document.getElementById(nameFieldId(id));
@@ -78,62 +98,90 @@ export function Sets({
     setEditingId(null);
   };
 
+  const openSet = sets.find((s) => s.id === openSetId);
+  const back = (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="mb-3 -ml-2 text-muted-foreground"
+      onClick={() => {
+        if (openSet && editingId === openSet.id) finishEditing(openSet);
+        onOpenSet(null);
+      }}
+    >
+      <ChevronLeft aria-hidden="true" />
+      Sets
+    </Button>
+  );
+
   return (
-    <div className="space-y-10 py-4 sm:px-4">
-      <section>
-        <h2 className="mb-4 flex items-baseline gap-2">
-          <span className="flex items-center gap-1.5 self-center text-lg font-bold">
-            <Star className="size-4 fill-star stroke-star" aria-hidden="true" />
-            Starred
-          </span>
-          <span className="text-sm text-muted-foreground">
-            {countLabel(favourites.length)}
-          </span>
-        </h2>
-        {favourites.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No starred chords yet. Tap a chord's star in All chords, or drag it
-            into the starred drawer, to add it here.
-          </p>
-        ) : (
-          <div className={CHORD_GRID}>
-            {favourites.map((name) => (
-              <ChordCard key={name} name={name} diagram={chords[name]}>
-                <PlayStarButtons
-                  name={name}
-                  starred
-                  onPlay={() => play(name)}
-                  onToggleStar={() => toggleStar(name)}
+    <div className="py-4 sm:px-4">
+      {openSetId === STARRED_ID ? (
+        <>
+          {back}
+          <section>
+            <h2 className="mb-4 flex items-baseline gap-2">
+              <span className="flex items-center gap-1.5 self-center text-lg font-bold">
+                <Star
+                  className="size-4 fill-star stroke-star"
+                  aria-hidden="true"
                 />
-              </ChordCard>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {sets.map((set) => (
-        <SetSection
-          key={set.id}
-          set={set}
-          actions={actions}
-          editing={editingId === set.id}
-          onEdit={() => setEditingId(set.id)}
-          onDone={() => finishEditing(set)}
-          onAddChords={() => setPickerId(set.id)}
-          isStarred={(name) => starred.has(name)}
-          onPlay={play}
-          onToggleStar={toggleStar}
+                Starred
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {countLabel(favourites.length)}
+              </span>
+            </h2>
+            {favourites.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No starred chords yet. Tap a chord's star in All chords, or drag
+                it into the starred drawer, to add it here.
+              </p>
+            ) : (
+              <div className={CHORD_GRID}>
+                {favourites.map((name) => (
+                  <ChordCard key={name} name={name} diagram={chords[name]}>
+                    <PlayStarButtons
+                      name={name}
+                      starred
+                      onPlay={() => play(name)}
+                      onToggleStar={() => toggleStar(name)}
+                    />
+                  </ChordCard>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      ) : openSet ? (
+        <>
+          {back}
+          <SetSection
+            set={openSet}
+            actions={actions}
+            editing={editingId === openSet.id}
+            onEdit={() => setEditingId(openSet.id)}
+            onDone={() => finishEditing(openSet)}
+            onAddChords={() => setPickerId(openSet.id)}
+            onDelete={() => {
+              actions.remove(openSet.id);
+              onOpenSet(null);
+            }}
+            isStarred={(name) => starred.has(name)}
+            onPlay={play}
+            onToggleStar={toggleStar}
+          />
+        </>
+      ) : (
+        <SetList
+          sets={[
+            { id: STARRED_ID, name: "Starred", chords: favourites },
+            ...sets,
+          ]}
+          onOpen={onOpenSet}
+          onCreate={createSet}
         />
-      ))}
-
-      <button
-        type="button"
-        onClick={createSet}
-        className="flex h-20 w-full max-w-xs cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
-      >
-        <Plus className="size-4" aria-hidden="true" />
-        New set
-      </button>
+      )}
 
       <ChordPicker
         set={sets.find((s) => s.id === pickerId) ?? null}
@@ -141,6 +189,145 @@ export function Sets({
         onClose={() => setPickerId(null)}
       />
     </div>
+  );
+}
+
+/**
+ * Every set, to pick one to open: an iOS-style list on phones, a grid of cards
+ * previewing their first chords on wider screens.
+ */
+function SetList({
+  sets,
+  onOpen,
+  onCreate,
+}: {
+  sets: ChordSet[];
+  onOpen: (id: string) => void;
+  onCreate: () => void;
+}) {
+  const icon = (set: ChordSet, className: string) =>
+    set.id === STARRED_ID ? (
+      <Star
+        className={cn(className, "fill-star stroke-star")}
+        aria-hidden="true"
+      />
+    ) : (
+      <ListMusic className={className} aria-hidden="true" />
+    );
+
+  return (
+    <>
+      {/* Phones: a list. */}
+      <div className="space-y-4 md:hidden">
+        <ul className="divide-y divide-border overflow-hidden rounded-xl bg-card shadow-sm dark:ring-1 dark:ring-border">
+          {sets.map((set) => {
+            const name = set.name.trim() || UNTITLED;
+            return (
+              <li key={set.id}>
+                <button
+                  type="button"
+                  onClick={() => onOpen(set.id)}
+                  aria-label={`${name}, ${countLabel(set.chords.length)}`}
+                  className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-accent active:bg-accent"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    {icon(set, "size-4")}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{name}</span>
+                    <span className="block truncate text-sm text-muted-foreground">
+                      {set.chords.length > 0
+                        ? set.chords.join(" · ")
+                        : "No chords yet"}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-sm text-muted-foreground">
+                    {set.chords.length}
+                  </span>
+                  <ChevronRight
+                    className="size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <button
+          type="button"
+          onClick={onCreate}
+          className="flex w-full cursor-pointer items-center gap-3 rounded-xl bg-card px-4 py-3 text-left font-medium text-star shadow-sm transition-colors hover:bg-accent active:bg-accent dark:ring-1 dark:ring-border"
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <Plus className="size-4" aria-hidden="true" />
+          </span>
+          New set
+        </button>
+      </div>
+
+      {/* Wider screens: cards. */}
+      <div className="hidden grid-cols-2 gap-4 md:grid lg:grid-cols-3">
+        {sets.map((set) => {
+          const name = set.name.trim() || UNTITLED;
+          const preview = set.chords.slice(0, 4);
+          const more = set.chords.length - preview.length;
+          return (
+            <button
+              key={set.id}
+              type="button"
+              onClick={() => onOpen(set.id)}
+              aria-label={`${name}, ${countLabel(set.chords.length)}`}
+              className="flex cursor-pointer flex-col gap-3 rounded-xl bg-card p-4 text-left shadow-sm ring-1 ring-border transition-colors hover:bg-accent"
+            >
+              <span className="flex w-full items-center gap-2">
+                {icon(set, "size-4 shrink-0")}
+                <span className="min-w-0 flex-1 truncate font-medium">
+                  {name}
+                </span>
+                <span className="shrink-0 text-sm text-muted-foreground">
+                  {countLabel(set.chords.length)}
+                </span>
+              </span>
+              {/* Same height filled or empty, so the cards line up. */}
+              <span
+                aria-hidden="true"
+                className="grid aspect-[4/1.35] w-full grid-cols-4 items-center gap-2"
+              >
+                {preview.length === 0 ? (
+                  <span className="col-span-4 text-center text-sm text-muted-foreground">
+                    No chords yet
+                  </span>
+                ) : (
+                  preview.map((chord, i) => (
+                    <span key={chord} className="relative">
+                      <UkuleleChord
+                        chord={chords[chord]}
+                        name={chord}
+                        size={100}
+                        className="h-auto w-full"
+                      />
+                      {i === preview.length - 1 && more > 0 && (
+                        <span className="absolute inset-0 flex items-center justify-center rounded-md bg-card/80 text-sm font-medium">
+                          +{more + 1}
+                        </span>
+                      )}
+                    </span>
+                  ))
+                )}
+              </span>
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={onCreate}
+          className="flex min-h-32 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+        >
+          <Plus className="size-4" aria-hidden="true" />
+          New set
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -158,6 +345,7 @@ function SetSection({
   onEdit,
   onDone,
   onAddChords,
+  onDelete,
   isStarred,
   onPlay,
   onToggleStar,
@@ -168,6 +356,7 @@ function SetSection({
   onEdit: () => void;
   onDone: () => void;
   onAddChords: () => void;
+  onDelete: () => void;
   isStarred: (chord: string) => boolean;
   onPlay: (chord: string) => void;
   onToggleStar: (chord: string) => void;
@@ -279,11 +468,7 @@ function SetSection({
           {confirmingDelete ? (
             <>
               <span>Delete “{name}”? This can't be undone.</span>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => actions.remove(set.id)}
-              >
+              <Button variant="destructive" size="sm" onClick={onDelete}>
                 Delete
               </Button>
               <Button

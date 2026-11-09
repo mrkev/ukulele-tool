@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useMemo } from "react";
 import { ChordDiagram, chordGroups } from "./ChordDiagram";
 import { searchChords } from "./chordSearch";
-import { CHORD_GRID, ChordCard } from "./ChordCard";
+import { CHORD_GRID, ChordCard, PlayStarButtons } from "./ChordCard";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer } from "./audio/useChordPlayer";
 import { RootIndex } from "./RootIndex";
@@ -68,15 +68,14 @@ export function AllChords({
             <h2 className="text-lg font-bold mb-4">{root} chords</h2>
             <div className={CHORD_GRID}>
               {chords.map(([name, diagram]) => (
-                <ChordCard
-                  key={name}
-                  name={name}
-                  diagram={diagram}
-                  starred={favSet.has(name)}
-                  onPlay={() => playChord(diagram)}
-                  onToggleStar={() => toggleFav(name)}
-                  draggable
-                />
+                <ChordCard key={name} name={name} diagram={diagram} draggable>
+                  <PlayStarButtons
+                    name={name}
+                    starred={favSet.has(name)}
+                    onPlay={() => playChord(diagram)}
+                    onToggleStar={() => toggleFav(name)}
+                  />
+                </ChordCard>
               ))}
             </div>
           </section>

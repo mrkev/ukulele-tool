@@ -5,24 +5,21 @@ import UkuleleChord from "./SVGChordDiagram";
 import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { ChordDragHandle } from "./dnd/ChordDrag";
 
-/** A chord's diagram with its play and star buttons, as shown in the chart. */
+/** A chord's diagram with its buttons under it, as shown in the chart. */
 export function ChordCard({
   name,
   diagram,
-  starred,
-  onPlay,
-  onToggleStar,
   draggable = false,
+  children,
 }: {
   name: string;
   diagram: ChordDiagram;
-  starred: boolean;
-  onPlay: () => void;
-  onToggleStar: () => void;
   /** Whether it can be dragged into the starred drawer. */
   draggable?: boolean;
+  /** The buttons; usually <PlayStarButtons>. */
+  children: ReactNode;
 }) {
-  const picture: ReactNode = (
+  const picture = (
     <UkuleleChord
       chord={diagram}
       name={name}
@@ -41,24 +38,41 @@ export function ChordCard({
       ) : (
         <div className="w-full">{picture}</div>
       )}
-      <ButtonGroup variant={"outline"} size={"sm"}>
-        <ButtonGroupItem
-          className="cursor-pointer"
-          onClick={onPlay}
-          aria-label={`Play ${name}`}
-        >
-          <Play />
-        </ButtonGroupItem>
-        <ButtonGroupItem
-          className="cursor-pointer"
-          onClick={onToggleStar}
-          aria-label={starred ? `Unstar ${name}` : `Star ${name}`}
-          aria-pressed={starred}
-        >
-          <Star className={starred ? "fill-star stroke-star" : undefined} />
-        </ButtonGroupItem>
-      </ButtonGroup>
+      {children}
     </div>
+  );
+}
+
+/** The usual buttons under a chord: play it, and star or unstar it. */
+export function PlayStarButtons({
+  name,
+  starred,
+  onPlay,
+  onToggleStar,
+}: {
+  name: string;
+  starred: boolean;
+  onPlay: () => void;
+  onToggleStar: () => void;
+}) {
+  return (
+    <ButtonGroup variant={"outline"} size={"sm"}>
+      <ButtonGroupItem
+        className="cursor-pointer"
+        onClick={onPlay}
+        aria-label={`Play ${name}`}
+      >
+        <Play />
+      </ButtonGroupItem>
+      <ButtonGroupItem
+        className="cursor-pointer"
+        onClick={onToggleStar}
+        aria-label={starred ? `Unstar ${name}` : `Star ${name}`}
+        aria-pressed={starred}
+      >
+        <Star className={starred ? "fill-star stroke-star" : undefined} />
+      </ButtonGroupItem>
+    </ButtonGroup>
   );
 }
 

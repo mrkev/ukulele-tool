@@ -11,7 +11,15 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import type { ChordDiagram } from "../ChordDiagram";
 import UkuleleChord from "../SVGChordDiagram";
-import { ChordDragContext, useChordDragContext, type Drag } from "./chordDragContext";
+import {
+  ChordDragContext,
+  useChordDragContext,
+  type Drag,
+  type Drop,
+} from "./chordDragContext";
+
+/** How long a drop stays in `lastDrop`, for its zone to show it landing. */
+const DROP_LINGER_MS = 900;
 
 /** Movement (px) before a mouse press becomes a drag instead of a click. */
 const MOUSE_THRESHOLD = 6;
@@ -26,16 +34,19 @@ export function ChordDragProvider({
   onDragEnd,
   children,
 }: {
-  /** Called with the chord name when it is released over the drop zone. */
-  onDrop: (name: string) => void;
+  /** Called with the chord name and the drop zone's id when it lands on one. */
+  onDrop: (name: string, zoneId: string) => void;
   /** Called once a press has actually turned into a drag — not on every press. */
   onDragStart?: () => void;
-  /** Called when that drag finishes, telling you whether it landed on the drop zone. */
+  /** Called when that drag finishes, telling you whether it landed on a drop zone. */
   onDragEnd?: (dropped: boolean) => void;
   children: ReactNode;
 }) {
   const [drag, setDrag] = useState<Drag | null>(null);
-  const dropZoneRef = useRef<HTMLElement | null>(null);
+  const [lastDrop, setLastDrop] = useState<Drop | null>(null);
+  const dropZones = useRef(new Map<string, HTMLElement>());
+  const lingerTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(lingerTimer.current), []);
 
   const onDropRef = useRef(onDrop);
   const onDragStartRef = useRef(onDragStart);
@@ -46,15 +57,18 @@ export function ChordDragProvider({
     onDragEndRef.current = onDragEnd;
   }, [onDrop, onDragStart, onDragEnd]);
 
-  const setDropZone = useCallback((el: HTMLElement | null) => {
-    dropZoneRef.current = el;
+  const setDropZone = useCallback((id: string, el: HTMLElement | null) => {
+    if (el) dropZones.current.set(id, el);
+    else dropZones.current.delete(id);
   }, []);
 
-  const isOverDropZone = useCallback((x: number, y: number) => {
-    const el = dropZoneRef.current;
-    if (!el) return false;
-    const r = el.getBoundingClientRect();
-    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+  /** The id of the drop zone at a point, if any. */
+  const dropZoneAt = useCallback((x: number, y: number) => {
+    for (const [id, el] of dropZones.current) {
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return id;
+    }
+    return null;
   }, []);
 
   const startDrag = useCallback(
@@ -78,15 +92,17 @@ export function ChordDragProvider({
         setDrag(null);
       };
 
-      // Promotes the press to a real drag. Announced so the drop zone can reveal itself.
+      // Promotes the press to a real drag. Announced so drop zones can reveal themselves.
       function begin(x: number, y: number) {
         started = true;
+        window.clearTimeout(lingerTimer.current);
+        setLastDrop(null);
         onDragStartRef.current?.();
         track(x, y);
       }
 
       function track(x: number, y: number) {
-        setDrag({ name, diagram, x, y, over: isOverDropZone(x, y) });
+        setDrag({ name, diagram, x, y, overId: dropZoneAt(x, y) });
       }
 
       function onMove(ev: PointerEvent) {
@@ -109,9 +125,17 @@ export function ChordDragProvider({
 
       function onUp(ev: PointerEvent) {
         if (ev.pointerId !== pointerId) return;
-        const dropped = started && isOverDropZone(ev.clientX, ev.clientY);
-        if (dropped) onDropRef.current(name);
-        finish(dropped);
+        const zoneId = started ? dropZoneAt(ev.clientX, ev.clientY) : null;
+        if (zoneId) {
+          onDropRef.current(name, zoneId);
+          window.clearTimeout(lingerTimer.current);
+          setLastDrop({ name, zoneId });
+          lingerTimer.current = window.setTimeout(
+            () => setLastDrop(null),
+            DROP_LINGER_MS
+          );
+        }
+        finish(zoneId != null);
       }
 
       function onCancel(ev: PointerEvent) {
@@ -136,10 +160,13 @@ export function ChordDragProvider({
       document.addEventListener("touchmove", blockScroll, { passive: false });
 
       if (isTouch) {
-        holdTimer = window.setTimeout(() => begin(origin.x, origin.y), TOUCH_HOLD_MS);
+        holdTimer = window.setTimeout(
+          () => begin(origin.x, origin.y),
+          TOUCH_HOLD_MS
+        );
       }
     },
-    [isOverDropZone]
+    [dropZoneAt]
   );
 
   // Keep the page from selecting text under the cursor mid-drag.
@@ -155,7 +182,7 @@ export function ChordDragProvider({
   }, [isDragging]);
 
   return (
-    <ChordDragContext value={{ drag, setDropZone, startDrag }}>
+    <ChordDragContext value={{ drag, lastDrop, setDropZone, startDrag }}>
       {children}
       <ChordDragGhost drag={drag} />
     </ChordDragContext>
@@ -174,7 +201,7 @@ function ChordDragGhost({ drag }: { drag: Drag | null }) {
       <div
         className={cn(
           "rounded-xl border-2 bg-card p-1 text-card-foreground shadow-xl transition-transform",
-          drag.over
+          drag.overId
             ? "scale-110 border-star ring-4 ring-star/30"
             : "scale-100 rotate-3 border-border"
         )}

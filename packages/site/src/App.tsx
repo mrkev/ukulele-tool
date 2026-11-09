@@ -21,17 +21,16 @@ import { TABS, type Tab } from "./tabs";
 import { About } from "./About";
 import { Sets } from "./Sets";
 import { SettingsDrawer } from "./SettingsDrawer";
-import { useChordDropZone } from "./dnd/chordDragContext";
+import { DropTray, NEW_SET_ZONE, STARRED_ZONE } from "./DropTray";
+import { useChordSets } from "@/lib/chordSets";
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { useThemeSetting } from "@/lib/theme";
 import { useSilentModePlayback } from "@/lib/silentModePlayback";
 
-/** Resting heights of the starred drawer. The first is the peek shown during a drag. */
+/** Resting heights of the starred drawer: a row of chords, a few rows, all. */
 const snapPoints = ["212px", "440px", 1];
-/** How long a drag-opened drawer lingers after a drop, so the chord is seen landing. */
-const DROP_LINGER_MS = 900;
 
 export function App() {
   const chordPlayer = useChordPlayer();
@@ -54,54 +53,31 @@ export function App() {
   const [theme, setTheme] = useThemeSetting();
   const [silentModePlayback, setSilentModePlayback] = useSilentModePlayback();
 
-  // Whether the drawer is on screen only because a drag is in progress. If the user
-  // opened it themselves, a drag must not take it away again afterwards.
-  const openedByDragRef = useRef(false);
-  const openRef = useRef(open);
-  const closeTimerRef = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    openRef.current = open;
-  }, [open]);
-  useEffect(() => () => window.clearTimeout(closeTimerRef.current), []);
+  const [sets, setActions] = useChordSets();
 
-  const starChord = useCallback(
-    (name: string) => {
-      setFavsState((prev) => (prev.includes(name) ? prev : prev.concat(name)));
+  const handleDrop = useCallback(
+    (name: string, zoneId: string) => {
+      if (zoneId === STARRED_ZONE) {
+        setFavsState((prev) =>
+          prev.includes(name) ? prev : prev.concat(name)
+        );
+      } else if (zoneId === NEW_SET_ZONE) {
+        setActions.create("New set", [name]);
+      } else {
+        setActions.addChord(zoneId, name);
+      }
     },
-    [setFavsState]
+    [setFavsState, setActions]
   );
 
-  const handleDragStart = useCallback(() => {
-    window.clearTimeout(closeTimerRef.current);
-    if (openRef.current) return;
-    openedByDragRef.current = true;
-    setSnap(snapPoints[0]);
-    setOpen(true);
-  }, []);
-
-  const handleDragEnd = useCallback((dropped: boolean) => {
-    if (!openedByDragRef.current) return;
-    const close = () => {
-      openedByDragRef.current = false;
-      setOpen(false);
-    };
-    if (dropped) {
-      closeTimerRef.current = window.setTimeout(close, DROP_LINGER_MS);
-    } else {
-      close();
-    }
-  }, []);
-
   const toggleOpen = useCallback(() => {
-    window.clearTimeout(closeTimerRef.current);
-    openedByDragRef.current = false;
-    if (openRef.current) {
+    if (open) {
       setOpen(false);
       return;
     }
     setSnap(snapPoints[1]);
     setOpen(true);
-  }, []);
+  }, [open]);
 
   /**
    * Brings the top of the current view back into sight. It starts just below
@@ -141,18 +117,8 @@ export function App() {
     [scrollToTop]
   );
 
-  const handleOpenChange = useCallback((next: boolean) => {
-    window.clearTimeout(closeTimerRef.current);
-    openedByDragRef.current = false;
-    setOpen(next);
-  }, []);
-
   return (
-    <ChordDragProvider
-      onDrop={starChord}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
+    <ChordDragProvider onDrop={handleDrop}>
       {/* Bottom padding keeps the last row clear of the phone's floating tab
           bar. Wider screens have tabs and search at the top instead. */}
       <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-4">
@@ -250,10 +216,11 @@ export function App() {
         favourites={favsState}
         setFavsState={setFavsState}
         open={open}
-        onOpenChange={handleOpenChange}
+        onOpenChange={setOpen}
         snap={snap}
         setSnap={setSnap}
       />
+      <DropTray starred={favsState} sets={sets} />
     </ChordDragProvider>
   );
 }
@@ -306,11 +273,7 @@ function FavouritesDrawer({
   snap: number | string | null;
   setSnap: (snap: number | string | null) => void;
 }) {
-  const { dropZoneRef, isDragging, isOver, draggingName } = useChordDropZone();
   const expanded = snap !== snapPoints[0];
-
-  const alreadyStarred =
-    draggingName != null && favourites.includes(draggingName);
 
   const playChord = (chord: ChordDiagram) => {
     const [g, c, e, a] = midiOfChordDiagram(chord);
@@ -327,7 +290,7 @@ function FavouritesDrawer({
     <Drawer
       open={open}
       onOpenChange={(next) => onOpenChange(next)}
-      // The chart stays usable behind it: play, star and drag chords in.
+      // The chart stays usable behind it: play and star chords.
       modal={false}
       disablePointerDismissal
       snapPoints={snapPoints}
@@ -336,20 +299,11 @@ function FavouritesDrawer({
       showSwipeHandle
     >
       <DrawerContent
-        ref={dropZoneRef}
         swipeFromContent
         // Opening it must not pull focus (and the keyboard) away from the page.
         initialFocus={false}
         finalFocus={false}
-        className={cn(
-          "bg-card text-card-foreground [--drawer-bleed-background:var(--card)] border-t-2 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]",
-          isOver
-            ? // Tint mixed into the card colour: the drawer must stay opaque.
-              "border-star bg-[color-mix(in_oklab,var(--star)_12%,var(--card))]"
-            : isDragging
-              ? "border-star/60 border-dashed"
-              : "border-border"
-        )}
+        className="border-t-2 border-border bg-card text-card-foreground shadow-[0_-8px_30px_rgba(0,0,0,0.12)] [--drawer-bleed-background:var(--card)]"
       >
         <div
           className={cn(
@@ -360,21 +314,14 @@ function FavouritesDrawer({
           <div className="flex flex-row items-baseline gap-2 mb-2">
             <DrawerTitle>Starred Chords</DrawerTitle>
             <span className="text-sm text-muted-foreground">
-              {isDragging
-                ? isOver
-                  ? alreadyStarred
-                    ? `${draggingName} is already starred`
-                    : `Release to star ${draggingName}`
-                  : "Drop a chord here to star it"
-                : favourites.length > 0
-                  ? `${favourites.length} saved`
-                  : null}
+              {favourites.length > 0 ? `${favourites.length} saved` : null}
             </span>
           </div>
 
-          {favourites.length === 0 && !isDragging ? (
+          {favourites.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6">
-              Drag a chord down here — or tap its star — to save it.
+              Tap a chord's star to save it here, or drag the chord onto
+              Starred.
             </p>
           ) : (
             <div
@@ -419,27 +366,6 @@ function FavouritesDrawer({
                   </ButtonGroup>
                 </div>
               ))}
-
-              {/* Landing slot, so there is somewhere obvious to aim. */}
-              {isDragging && !alreadyStarred && (
-                <div
-                  className={cn(
-                    "h-36 w-24 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-dashed transition-colors",
-                    isOver
-                      ? "border-star bg-star/15"
-                      : "border-muted-foreground/40"
-                  )}
-                >
-                  <Star
-                    className={cn(
-                      "h-6 w-6",
-                      isOver
-                        ? "fill-star stroke-star"
-                        : "stroke-muted-foreground"
-                    )}
-                  />
-                </div>
-              )}
             </div>
           )}
         </div>

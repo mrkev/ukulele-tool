@@ -30,10 +30,10 @@ export function useChordSets() {
 
   const actions = useMemo(
     () => ({
-      /** Adds an empty set at the end and returns its id. */
-      create(name: string) {
+      /** Adds a set at the end, empty unless given chords, and returns its id. */
+      create(name: string, chords: string[] = []) {
         const id = newId();
-        setSets((prev) => prev.concat({ id, name, chords: [] }));
+        setSets((prev) => prev.concat({ id, name, chords }));
         return id;
       },
       rename(id: string, name: string) {
@@ -41,6 +41,14 @@ export function useChordSets() {
       },
       remove(id: string) {
         setSets((prev) => prev.filter((s) => s.id !== id));
+      },
+      /** Adds the chord at the end, unless it's already there. */
+      addChord(id: string, chord: string) {
+        update(id, (s) =>
+          s.chords.includes(chord)
+            ? s
+            : { ...s, chords: s.chords.concat(chord) }
+        );
       },
       /** Adds the chord at the end, or takes it out if it's already there. */
       toggleChord(id: string, chord: string) {

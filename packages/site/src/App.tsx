@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp, Play, Star } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Tabs } from "@base-ui/react/tabs";
 import useLocalStorageState from "use-local-storage-state";
 import AllChords from "./AllChords";
 import { ChordDiagram, chords } from "./ChordDiagram";
@@ -10,6 +11,7 @@ import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
 import { SearchBar } from "./SearchBar";
 import { About } from "./About";
+import { Sets } from "./Sets";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
@@ -23,6 +25,12 @@ const snapPoints = ["212px", "440px", 1];
 /** How long a drag-opened drawer lingers after a drop, so the chord is seen landing. */
 const DROP_LINGER_MS = 900;
 
+type Tab = "all" | "sets";
+const TABS: { value: Tab; label: string }[] = [
+  { value: "all", label: "All chords" },
+  { value: "sets", label: "Sets" },
+];
+
 export function App() {
   const chordPlayer = useChordPlayer();
   const [favsState, setFavsState] = useLocalStorageState<string[]>(
@@ -31,6 +39,7 @@ export function App() {
   );
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<Tab>("all");
   const chartRef = useRef<HTMLDivElement>(null);
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
   // The starred drawer is where you read chords while playing, so keep the
@@ -90,6 +99,8 @@ export function App() {
 
   const handleQueryChange = useCallback((next: string) => {
     setQuery(next);
+    // Search finds chords in the chart, so typing goes back to it.
+    if (next.trim() !== "") setTab("all");
     // Results start at the top of the chart; bring it back if scrolled past.
     const chart = chartRef.current;
     if (chart && chart.getBoundingClientRect().top < 0) {
@@ -144,14 +155,40 @@ export function App() {
             )}
           </button>
         </header>
-        <div ref={chartRef} className="scroll-mt-2">
-          <AllChords
-            chordPlayer={chordPlayer}
-            favourites={favsState}
-            setFavouries={setFavsState}
-            query={query}
-          />
-        </div>
+        <Tabs.Root
+          value={tab}
+          onValueChange={(value) => setTab(value as Tab)}
+          className="mt-4"
+        >
+          <Tabs.List className="grid w-full max-w-xs grid-cols-2 gap-1 rounded-xl bg-muted p-1 sm:ml-4">
+            {TABS.map(({ value, label }) => (
+              <Tabs.Tab
+                key={value}
+                value={value}
+                className="h-9 pointer-coarse:h-10 cursor-pointer rounded-lg text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 data-active:bg-card data-active:text-foreground data-active:shadow-sm"
+              >
+                {label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+          <div ref={chartRef} className="scroll-mt-2">
+            <Tabs.Panel value="all" className="outline-none">
+              <AllChords
+                chordPlayer={chordPlayer}
+                favourites={favsState}
+                setFavouries={setFavsState}
+                query={query}
+              />
+            </Tabs.Panel>
+            <Tabs.Panel value="sets" className="outline-none">
+              <Sets
+                chordPlayer={chordPlayer}
+                favourites={favsState}
+                setFavourites={setFavsState}
+              />
+            </Tabs.Panel>
+          </div>
+        </Tabs.Root>
         <About />
       </div>
       <SearchBar

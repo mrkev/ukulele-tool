@@ -1,12 +1,9 @@
-import { Play, Star } from "lucide-react";
 import { Dispatch, SetStateAction, useMemo } from "react";
 import { ChordDiagram, chordGroups } from "./ChordDiagram";
 import { searchChords } from "./chordSearch";
-import UkuleleChord from "./SVGChordDiagram";
-import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
+import { CHORD_GRID, ChordCard } from "./ChordCard";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer } from "./audio/useChordPlayer";
-import { ChordDragHandle } from "./dnd/ChordDrag";
 import { RootIndex } from "./RootIndex";
 import { sectionId } from "./sections";
 
@@ -67,54 +64,20 @@ export function AllChords({
       )}
       <div className="space-y-8">
         {Object.entries(groups).map(([root, chords]) => (
-          <section
-            key={root}
-            id={sectionId(root)}
-            className="scroll-mt-4"
-          >
+          <section key={root} id={sectionId(root)} className="scroll-mt-4">
             <h2 className="text-lg font-bold mb-4">{root} chords</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-x-2 gap-y-6 sm:gap-6">
-              {chords.map(([name, diagram]) => {
-                const isFav = favSet.has(name);
-                return (
-                  // Shrinks with its column on narrow phones; 128px at most.
-                  <div
-                    className="w-full max-w-32 mx-auto flex flex-col items-center"
-                    key={name}
-                  >
-                    <ChordDragHandle name={name} diagram={diagram} className="w-full">
-                      <UkuleleChord
-                        chord={diagram}
-                        name={name}
-                        size={100}
-                        className="w-full h-auto"
-                      />
-                    </ChordDragHandle>
-                    <ButtonGroup variant={"outline"} size={"sm"}>
-                      {/* <ButtonGroupItem className="cursor-pointer" disabled>
-                        <Plus />
-                      </ButtonGroupItem> */}
-                      <ButtonGroupItem
-                        className="cursor-pointer"
-                        onClick={() => playChord(diagram)}
-                        aria-label={`Play ${name}`}
-                      >
-                        <Play />
-                      </ButtonGroupItem>
-                      <ButtonGroupItem
-                        className="cursor-pointer"
-                        onClick={() => toggleFav(name)}
-                        aria-label={isFav ? `Unstar ${name}` : `Star ${name}`}
-                        aria-pressed={isFav}
-                      >
-                        <Star
-                          className={isFav ? "fill-star stroke-star" : undefined}
-                        />
-                      </ButtonGroupItem>
-                    </ButtonGroup>
-                  </div>
-                );
-              })}
+            <div className={CHORD_GRID}>
+              {chords.map(([name, diagram]) => (
+                <ChordCard
+                  key={name}
+                  name={name}
+                  diagram={diagram}
+                  starred={favSet.has(name)}
+                  onPlay={() => playChord(diagram)}
+                  onToggleStar={() => toggleFav(name)}
+                  draggable
+                />
+              ))}
             </div>
           </section>
         ))}

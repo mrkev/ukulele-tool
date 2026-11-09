@@ -109,11 +109,17 @@ export function App() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      {/* Bottom padding keeps the last row clear of the floating search bar. */}
-      <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+      {/* Bottom padding keeps the last row clear of the floating search bar,
+          which wider screens show in the header instead. */}
+      <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-4">
         <header className="flex flex-row items-center gap-2">
           <h1 className="text-xl">Ukulele Chords</h1>
           <div className="grow"></div>
+          <SearchBar
+            placement="header"
+            value={query}
+            onChange={handleQueryChange}
+          />
           <SettingsDrawer
             theme={theme}
             setTheme={setTheme}
@@ -148,7 +154,11 @@ export function App() {
         </div>
         <About />
       </div>
-      <SearchBar value={query} onChange={handleQueryChange} />
+      <SearchBar
+        placement="bottom"
+        value={query}
+        onChange={handleQueryChange}
+      />
       <FavouritesDrawer
         chordPlayer={chordPlayer}
         favourites={favsState}

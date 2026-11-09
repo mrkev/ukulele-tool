@@ -406,7 +406,6 @@ function SetSection({
   onPlay: (chord: string) => void;
   onToggleStar: (chord: string) => void;
 }) {
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const name = set.name.trim() || UNTITLED;
 
   return (
@@ -442,14 +441,7 @@ function SetSection({
             Done
           </Button>
         ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setConfirmingDelete(false);
-              onEdit();
-            }}
-          >
+          <Button variant="outline" size="sm" onClick={onEdit}>
             <Pencil aria-hidden="true" />
             Edit
           </Button>
@@ -512,33 +504,15 @@ function SetSection({
       </div>
 
       {editing && (
-        <div className="mt-6 flex flex-wrap items-center gap-2 text-sm">
-          {confirmingDelete ? (
-            <>
-              <span>Delete “{name}”? This can't be undone.</span>
-              <Button variant="destructive" size="sm" onClick={onDelete}>
-                Delete
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setConfirmingDelete(false)}
-              >
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-destructive"
-              onClick={() => setConfirmingDelete(true)}
-            >
-              <Trash2 aria-hidden="true" />
-              Delete set
-            </Button>
-          )}
-        </div>
+        <Button
+          variant="destructive"
+          // Full width on phones, in thumb reach.
+          className="mt-6 w-full pointer-coarse:h-11 md:w-auto"
+          onClick={onDelete}
+        >
+          <Trash2 aria-hidden="true" />
+          Delete set
+        </Button>
       )}
     </section>
   );

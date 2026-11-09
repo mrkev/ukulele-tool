@@ -134,8 +134,8 @@ export function Sets({
             </h2>
             {favourites.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No starred chords yet. Tap a chord's star in All chords, or drag
-                it into the starred drawer, to add it here.
+                No starred chords yet. Tap a chord's star in Ukulele Chords, or
+                drag it into the starred drawer, to add it here.
               </p>
             ) : (
               <div className={CHORD_GRID}>

@@ -41,6 +41,7 @@ export function App() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<Tab>("all");
+  const currentTab = TABS.find((t) => t.value === tab) ?? TABS[0];
   /** The set open in the Sets tab; null shows the list of sets. */
   const [openSetId, setOpenSetId] = useState<string | null>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -131,14 +132,33 @@ export function App() {
           <div
             ref={stickyRef}
             className={cn(
-              "sticky top-0 z-30 -mx-4 -mt-4 border-b border-transparent bg-background/80 px-4 pt-3 pb-3 backdrop-blur-md transition-colors md:pb-0",
-              // A hairline once content scrolls under it; on wider screens the
-              // tabs' own underline does this.
-              scrolled && "max-md:border-border"
+              "sticky top-0 z-30 -mx-4 -mt-4 border-b border-transparent bg-background/80 px-4 py-3 backdrop-blur-md transition-colors",
+              // A hairline once content scrolls under it.
+              scrolled && "border-border"
             )}
           >
             <header className="flex flex-row items-center gap-2">
-              <h1 className="text-xl">Ukulele Chords</h1>
+              {/* On phones, the current tab's name; wider screens show the
+                  tabs themselves instead, so it's left for screen readers. */}
+              <h1 className="text-xl md:sr-only">{currentTab.label}</h1>
+              {/* Wider screens' tabs, in the title's place. Phones use the tab
+                  bar at the bottom. */}
+              <Tabs.List className="hidden h-10 items-stretch gap-6 md:flex">
+                {TABS.map(({ value, label }) => (
+                  <Tabs.Tab
+                    key={value}
+                    value={value}
+                    // Picking the current tab doesn't change the value; still
+                    // let it go back to the tab's top level.
+                    onClick={() => {
+                      if (value === tab) handleTabChange(value);
+                    }}
+                    className="flex cursor-pointer items-center border-y-2 border-transparent text-base font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:underline data-active:border-b-foreground data-active:text-foreground"
+                  >
+                    {label}
+                  </Tabs.Tab>
+                ))}
+              </Tabs.List>
               <div className="grow"></div>
               <HeaderSearch value={query} onChange={handleQueryChange} />
               <SettingsDrawer
@@ -166,22 +186,6 @@ export function App() {
               </button>
             </header>
             {/* Wider screens' tabs. Phones use the tab bar at the bottom. */}
-            <Tabs.List className="mt-3 hidden gap-6 border-b border-border px-4 md:flex">
-              {TABS.map(({ value, label }) => (
-                <Tabs.Tab
-                  key={value}
-                  value={value}
-                  // Picking the current tab doesn't change the value; still
-                  // let it go back to the tab's top level.
-                  onClick={() => {
-                    if (value === tab) handleTabChange(value);
-                  }}
-                  className="-mb-px cursor-pointer border-b-2 border-transparent py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:underline data-active:border-foreground data-active:text-foreground"
-                >
-                  {label}
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
           </div>
           <div>
             <Tabs.Panel value="all" className="outline-none">

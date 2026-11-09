@@ -110,14 +110,6 @@ export function App() {
     [tab, scrollToTop]
   );
 
-  const handleOpenSet = useCallback(
-    (id: string | null) => {
-      setOpenSetId(id);
-      scrollToTop();
-    },
-    [scrollToTop]
-  );
-
   return (
     <ChordDragProvider onDrop={handleDrop}>
       {/* Bottom padding keeps the last row clear of the phone's floating tab
@@ -202,7 +194,7 @@ export function App() {
                 favourites={favsState}
                 setFavourites={setFavsState}
                 openSetId={openSetId}
-                onOpenSet={handleOpenSet}
+                onOpenSet={setOpenSetId}
               />
             </Tabs.Panel>
           </div>

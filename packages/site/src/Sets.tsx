@@ -8,10 +8,16 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import { flushSync } from "react-dom";
+import {
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 
 import { Button } from "@/components/ui/button";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import {
   useChordSets,
@@ -55,13 +61,25 @@ export function Sets({
   const [sets, actions] = useChordSets();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pickerId, setPickerId] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const starred = useMemo(() => new Set(favourites), [favourites]);
 
   // Leaving a set, however it happens, finishes editing it.
-  const [shownSetId, setShownSetId] = useState(openSetId);
-  if (openSetId !== shownSetId) {
-    setShownSetId(openSetId);
+  const [prevOpenId, setPrevOpenId] = useState(openSetId);
+  if (openSetId !== prevOpenId) {
+    setPrevOpenId(openSetId);
     if (editingId !== openSetId) setEditingId(null);
+  }
+
+  // What the drawer shows: kept while it slides away, even once the set has
+  // gone (just deleted) or the drawer has closed.
+  const liveSet =
+    openSetId === STARRED_ID
+      ? { id: STARRED_ID, name: "Starred", chords: favourites }
+      : sets.find((s) => s.id === openSetId);
+  const [shownSet, setShownSet] = useState<ChordSet | null>(null);
+  if (liveSet && liveSet !== shownSet && !sameSet(liveSet, shownSet)) {
+    setShownSet(liveSet);
   }
 
   const play = (name: string) => {
@@ -80,17 +98,9 @@ export function Sets({
     );
 
   const createSet = () => {
-    let id = "";
-    // Render the new set now, so its name field can be focused while still
-    // handling the tap: iOS only raises the keyboard for focus during a gesture.
-    // eslint-disable-next-line @eslint-react/dom-no-flush-sync
-    flushSync(() => {
-      id = actions.create("New set");
-      onOpenSet(id);
-      setEditingId(id);
-    });
-    const name = document.getElementById(nameFieldId(id));
-    if (name instanceof HTMLInputElement) name.select();
+    const id = actions.create("New set");
+    setEditingId(id);
+    onOpenSet(id);
   };
 
   const finishEditing = (set: ChordSet) => {
@@ -98,97 +108,133 @@ export function Sets({
     setEditingId(null);
   };
 
-  const openSet = sets.find((s) => s.id === openSetId);
-  const back = (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="mb-3 -ml-2 text-muted-foreground"
-      onClick={() => {
-        if (openSet && editingId === openSet.id) finishEditing(openSet);
-        onOpenSet(null);
-      }}
-    >
-      <ChevronLeft aria-hidden="true" />
-      Sets
-    </Button>
-  );
+  const close = () => {
+    const open = sets.find((s) => s.id === openSetId);
+    if (open && editingId === open.id) finishEditing(open);
+    onOpenSet(null);
+  };
 
   return (
     <div className="py-4 sm:px-4">
-      {openSetId === STARRED_ID ? (
-        <>
-          {back}
-          <section>
-            <h2 className="mb-4 flex items-baseline gap-2">
-              <span className="flex items-center gap-1.5 self-center text-lg font-bold">
-                <Star
-                  className="size-4 fill-star stroke-star"
-                  aria-hidden="true"
-                />
-                Starred
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {countLabel(favourites.length)}
-              </span>
-            </h2>
-            {favourites.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No starred chords yet. Tap a chord's star in Ukulele Chords, or
-                drag it into the starred drawer, to add it here.
-              </p>
-            ) : (
-              <div className={CHORD_GRID}>
-                {favourites.map((name) => (
-                  <ChordCard key={name} name={name} diagram={chords[name]}>
-                    <PlayStarButtons
-                      name={name}
-                      starred
-                      onPlay={() => play(name)}
-                      onToggleStar={() => toggleStar(name)}
-                    />
-                  </ChordCard>
-                ))}
-              </div>
-            )}
-          </section>
-        </>
-      ) : openSet ? (
-        <>
-          {back}
-          <SetSection
-            set={openSet}
-            actions={actions}
-            editing={editingId === openSet.id}
-            onEdit={() => setEditingId(openSet.id)}
-            onDone={() => finishEditing(openSet)}
-            onAddChords={() => setPickerId(openSet.id)}
-            onDelete={() => {
-              actions.remove(openSet.id);
-              onOpenSet(null);
-            }}
-            isStarred={(name) => starred.has(name)}
-            onPlay={play}
-            onToggleStar={toggleStar}
-          />
-        </>
-      ) : (
-        <SetList
-          sets={[
-            { id: STARRED_ID, name: "Starred", chords: favourites },
-            ...sets,
-          ]}
-          onOpen={onOpenSet}
-          onCreate={createSet}
-        />
-      )}
-
-      <ChordPicker
-        set={sets.find((s) => s.id === pickerId) ?? null}
-        onToggle={(chord) => pickerId && actions.toggleChord(pickerId, chord)}
-        onClose={() => setPickerId(null)}
+      <SetList
+        sets={[
+          { id: STARRED_ID, name: "Starred", chords: favourites },
+          ...sets,
+        ]}
+        onOpen={onOpenSet}
+        onCreate={createSet}
       />
+
+      {/* The open set, in a drawer over most of the page. */}
+      <Drawer
+        open={liveSet != null}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        showSwipeHandle
+      >
+        <DrawerContent
+          // A new set opens with its name ready to type over; others focus
+          // the drawer itself, not its first button.
+          initialFocus={() => {
+            const name =
+              shownSet && editingId === shownSet.id
+                ? document.getElementById(nameFieldId(shownSet.id))
+                : null;
+            if (name instanceof HTMLInputElement) {
+              name.select();
+              return name;
+            }
+            return scrollRef.current;
+          }}
+          className="h-[calc(100dvh-2.5rem)] bg-card text-card-foreground [--drawer-bleed-background:var(--card)] data-[swipe-axis=y]:[--drawer-content-max-height:calc(100dvh-2.5rem)]"
+        >
+          <div
+            ref={scrollRef}
+            tabIndex={-1}
+            className="min-h-0 flex-1 overflow-y-auto outline-none"
+          >
+            <div className="mx-auto w-full max-w-5xl px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+              {shownSet?.id === STARRED_ID ? (
+                <section>
+                  <DrawerTitle className="mb-4 flex items-baseline gap-2">
+                    <span className="flex items-center gap-1.5 self-center text-lg font-bold">
+                      <Star
+                        className="size-4 fill-star stroke-star"
+                        aria-hidden="true"
+                      />
+                      Starred
+                    </span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {countLabel(favourites.length)}
+                    </span>
+                  </DrawerTitle>
+                  {favourites.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No starred chords yet. Tap a chord's star in Ukulele
+                      Chords, or drag the chord onto Starred, to add it here.
+                    </p>
+                  ) : (
+                    <div className={CHORD_GRID}>
+                      {favourites.map((name) => (
+                        <ChordCard
+                          key={name}
+                          name={name}
+                          diagram={chords[name]}
+                        >
+                          <PlayStarButtons
+                            name={name}
+                            starred
+                            onPlay={() => play(name)}
+                            onToggleStar={() => toggleStar(name)}
+                          />
+                        </ChordCard>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ) : shownSet ? (
+                <SetSection
+                  set={shownSet}
+                  actions={actions}
+                  editing={editingId === shownSet.id}
+                  onEdit={() => setEditingId(shownSet.id)}
+                  onDone={() => finishEditing(shownSet)}
+                  onAddChords={() => setPickerId(shownSet.id)}
+                  onDelete={() => {
+                    actions.remove(shownSet.id);
+                    onOpenSet(null);
+                  }}
+                  isStarred={(name) => starred.has(name)}
+                  onPlay={play}
+                  onToggleStar={toggleStar}
+                />
+              ) : null}
+            </div>
+          </div>
+
+          {/* Inside the set's drawer, so it opens as a drawer on top of it. */}
+          <ChordPicker
+            set={sets.find((s) => s.id === pickerId) ?? null}
+            onToggle={(chord) =>
+              pickerId && actions.toggleChord(pickerId, chord)
+            }
+            onClose={() => setPickerId(null)}
+          />
+        </DrawerContent>
+      </Drawer>
     </div>
+  );
+}
+
+/** Whether two sets have the same id, name and chords. */
+function sameSet(a: ChordSet, b: ChordSet | null) {
+  return (
+    b != null &&
+    a.id === b.id &&
+    a.name === b.name &&
+    a.chords.length === b.chords.length &&
+    a.chords.every((c, i) => c === b.chords[i])
   );
 }
 
@@ -368,26 +414,29 @@ function SetSection({
     <section aria-label={name}>
       <div className="mb-4 flex items-center gap-2">
         {editing ? (
-          <input
-            id={nameFieldId(set.id)}
-            value={set.name}
-            onChange={(e) => actions.rename(set.id, e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") e.currentTarget.blur();
-            }}
-            aria-label="Set name"
-            placeholder={UNTITLED}
-            enterKeyHint="done"
-            // 16px or more, or iOS zooms the page in on focus.
-            className="min-w-0 flex-1 rounded-md bg-muted px-2 py-1 text-lg font-bold outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
-          />
+          <>
+            <DrawerTitle className="sr-only">{name}</DrawerTitle>
+            <input
+              id={nameFieldId(set.id)}
+              value={set.name}
+              onChange={(e) => actions.rename(set.id, e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.currentTarget.blur();
+              }}
+              aria-label="Set name"
+              placeholder={UNTITLED}
+              enterKeyHint="done"
+              // 16px or more, or iOS zooms the page in on focus.
+              className="min-w-0 flex-1 rounded-md bg-muted px-2 py-1 text-lg font-bold outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+            />
+          </>
         ) : (
-          <h2 className="flex min-w-0 flex-1 items-baseline gap-2">
+          <DrawerTitle className="flex min-w-0 flex-1 items-baseline gap-2">
             <span className="truncate text-lg font-bold">{name}</span>
             <span className="shrink-0 text-sm text-muted-foreground">
               {countLabel(set.chords.length)}
             </span>
-          </h2>
+          </DrawerTitle>
         )}
         {editing ? (
           <Button size="sm" onClick={onDone}>

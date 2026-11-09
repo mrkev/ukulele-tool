@@ -44,9 +44,9 @@ export function ChordDragProvider({
 }) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const [lastDrop, setLastDrop] = useState<Drop | null>(null);
-  const dropZones = useRef(new Map<string, HTMLElement>());
-  const lingerTimer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(lingerTimer.current), []);
+  const dropZonesRef = useRef(new Map<string, HTMLElement>());
+  const lingerTimerRef = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(lingerTimerRef.current), []);
 
   const onDropRef = useRef(onDrop);
   const onDragStartRef = useRef(onDragStart);
@@ -58,13 +58,13 @@ export function ChordDragProvider({
   }, [onDrop, onDragStart, onDragEnd]);
 
   const setDropZone = useCallback((id: string, el: HTMLElement | null) => {
-    if (el) dropZones.current.set(id, el);
-    else dropZones.current.delete(id);
+    if (el) dropZonesRef.current.set(id, el);
+    else dropZonesRef.current.delete(id);
   }, []);
 
   /** The id of the drop zone at a point, if any. */
   const dropZoneAt = useCallback((x: number, y: number) => {
-    for (const [id, el] of dropZones.current) {
+    for (const [id, el] of dropZonesRef.current) {
       const r = el.getBoundingClientRect();
       if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return id;
     }
@@ -95,7 +95,7 @@ export function ChordDragProvider({
       // Promotes the press to a real drag. Announced so drop zones can reveal themselves.
       function begin(x: number, y: number) {
         started = true;
-        window.clearTimeout(lingerTimer.current);
+        window.clearTimeout(lingerTimerRef.current);
         setLastDrop(null);
         onDragStartRef.current?.();
         track(x, y);
@@ -128,9 +128,9 @@ export function ChordDragProvider({
         const zoneId = started ? dropZoneAt(ev.clientX, ev.clientY) : null;
         if (zoneId) {
           onDropRef.current(name, zoneId);
-          window.clearTimeout(lingerTimer.current);
+          window.clearTimeout(lingerTimerRef.current);
           setLastDrop({ name, zoneId });
-          lingerTimer.current = window.setTimeout(
+          lingerTimerRef.current = window.setTimeout(
             () => setLastDrop(null),
             DROP_LINGER_MS
           );

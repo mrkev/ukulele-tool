@@ -9,7 +9,9 @@ import { ButtonGroup, ButtonGroupItem } from "./components/ButtonGroup";
 import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
-import { SearchBar } from "./SearchBar";
+import { HeaderSearch } from "./SearchBar";
+import { TabBar } from "./TabBar";
+import { TABS, type Tab } from "./tabs";
 import { About } from "./About";
 import { Sets } from "./Sets";
 import { SettingsDrawer } from "./SettingsDrawer";
@@ -24,12 +26,6 @@ import { useSilentModePlayback } from "@/lib/silentModePlayback";
 const snapPoints = ["212px", "440px", 1];
 /** How long a drag-opened drawer lingers after a drop, so the chord is seen landing. */
 const DROP_LINGER_MS = 900;
-
-type Tab = "all" | "sets";
-const TABS: { value: Tab; label: string }[] = [
-  { value: "all", label: "All chords" },
-  { value: "sets", label: "Sets" },
-];
 
 export function App() {
   const chordPlayer = useChordPlayer();
@@ -108,6 +104,15 @@ export function App() {
     }
   }, []);
 
+  const handleTabChange = useCallback((next: Tab) => {
+    setTab(next);
+    // Each view starts at its top.
+    const chart = chartRef.current;
+    if (chart && chart.getBoundingClientRect().top < 0) {
+      chart.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+  }, []);
+
   const handleOpenChange = useCallback((next: boolean) => {
     window.clearTimeout(closeTimerRef.current);
     openedByDragRef.current = false;
@@ -120,17 +125,13 @@ export function App() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      {/* Bottom padding keeps the last row clear of the floating search bar,
-          which wider screens show in the header instead. */}
+      {/* Bottom padding keeps the last row clear of the phone's floating tab
+          bar. Wider screens have tabs and search at the top instead. */}
       <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-4">
         <header className="flex flex-row items-center gap-2">
           <h1 className="text-xl">Ukulele Chords</h1>
           <div className="grow"></div>
-          <SearchBar
-            placement="header"
-            value={query}
-            onChange={handleQueryChange}
-          />
+          <HeaderSearch value={query} onChange={handleQueryChange} />
           <SettingsDrawer
             theme={theme}
             setTheme={setTheme}
@@ -157,15 +158,15 @@ export function App() {
         </header>
         <Tabs.Root
           value={tab}
-          onValueChange={(value) => setTab(value as Tab)}
-          className="mt-4"
+          onValueChange={(value) => handleTabChange(value as Tab)}
         >
-          <Tabs.List className="grid w-full max-w-xs grid-cols-2 gap-1 rounded-xl bg-muted p-1 sm:ml-4">
+          {/* Wider screens' tabs. Phones use the tab bar at the bottom. */}
+          <Tabs.List className="mt-4 hidden gap-6 border-b border-border px-4 md:flex">
             {TABS.map(({ value, label }) => (
               <Tabs.Tab
                 key={value}
                 value={value}
-                className="h-9 pointer-coarse:h-10 cursor-pointer rounded-lg text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 data-active:bg-card data-active:text-foreground data-active:shadow-sm"
+                className="-mb-px cursor-pointer border-b-2 border-transparent py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:underline data-active:border-foreground data-active:text-foreground"
               >
                 {label}
               </Tabs.Tab>
@@ -191,10 +192,11 @@ export function App() {
         </Tabs.Root>
         <About />
       </div>
-      <SearchBar
-        placement="bottom"
-        value={query}
-        onChange={handleQueryChange}
+      <TabBar
+        tab={tab}
+        onTabChange={handleTabChange}
+        query={query}
+        onQueryChange={handleQueryChange}
       />
       <FavouritesDrawer
         chordPlayer={chordPlayer}

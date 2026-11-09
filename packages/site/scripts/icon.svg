@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- The site's icon: a G chord diagram, in the starred-chord orange.
+       scripts/make-icons.sh renders public/'s icons from this. -->
+  <rect width="512" height="512" rx="112" fill="#f97316"/>
+  <g stroke="#ffffff" stroke-width="16" stroke-linecap="round">
+    <line x1="136" y1="126" x2="136" y2="404"/>
+    <line x1="216" y1="126" x2="216" y2="404"/>
+    <line x1="296" y1="126" x2="296" y2="404"/>
+    <line x1="376" y1="126" x2="376" y2="404"/>
+    <line x1="136" y1="212" x2="376" y2="212"/>
+    <line x1="136" y1="284" x2="376" y2="284"/>
+    <line x1="136" y1="356" x2="376" y2="356"/>
+  </g>
+  <rect x="120" y="104" width="272" height="36" rx="10" fill="#ffffff"/>
+  <g fill="#ffffff">
+    <circle cx="216" cy="248" r="34"/>
+    <circle cx="296" cy="320" r="34"/>
+    <circle cx="376" cy="248" r="34"/>
+  </g>
+</svg>

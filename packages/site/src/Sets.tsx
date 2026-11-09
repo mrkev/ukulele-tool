@@ -263,53 +263,52 @@ function SetList({
 
   return (
     <>
-      {/* Phones: a list. */}
-      <div className="space-y-4 md:hidden">
-        <ul className="divide-y divide-border overflow-hidden rounded-xl bg-card shadow-sm dark:ring-1 dark:ring-border">
-          {sets.map((set) => {
-            const name = set.name.trim() || UNTITLED;
-            return (
-              <li key={set.id}>
-                <button
-                  type="button"
-                  onClick={() => onOpen(set.id)}
-                  aria-label={`${name}, ${countLabel(set.chords.length)}`}
-                  className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-accent active:bg-accent"
-                >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    {icon(set, "size-4")}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{name}</span>
-                    <span className="block truncate text-sm text-muted-foreground">
-                      {set.chords.length > 0
-                        ? set.chords.join(" · ")
-                        : "No chords yet"}
+      {/* Phones: a list of cards, one per row, styled like the wider
+          screens' cards. */}
+      <ul className="space-y-3 md:hidden">
+        {sets.map((set) => {
+          const name = set.name.trim() || UNTITLED;
+          return (
+            <li key={set.id}>
+              <button
+                type="button"
+                onClick={() => onOpen(set.id)}
+                aria-label={`${name}, ${countLabel(set.chords.length)}`}
+                className="flex w-full cursor-pointer items-center gap-3 rounded-xl bg-card p-4 text-left shadow-sm ring-1 ring-border transition-colors hover:bg-accent active:bg-accent"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  {icon(set, "size-4")}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline gap-2">
+                    <span className="min-w-0 flex-1 truncate font-medium">
+                      {name}
+                    </span>
+                    <span className="shrink-0 text-sm text-muted-foreground">
+                      {countLabel(set.chords.length)}
                     </span>
                   </span>
-                  <span className="shrink-0 text-sm text-muted-foreground">
-                    {set.chords.length}
+                  <span className="block truncate text-sm text-muted-foreground">
+                    {set.chords.length > 0
+                      ? set.chords.join(" · ")
+                      : "No chords yet"}
                   </span>
-                  <ChevronRight
-                    className="size-4 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        <button
-          type="button"
-          onClick={onCreate}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-xl bg-card px-4 py-3 text-left font-medium text-star shadow-sm transition-colors hover:bg-accent active:bg-accent dark:ring-1 dark:ring-border"
-        >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                </span>
+              </button>
+            </li>
+          );
+        })}
+        <li>
+          <button
+            type="button"
+            onClick={onCreate}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border p-4 text-sm font-medium text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+          >
             <Plus className="size-4" aria-hidden="true" />
-          </span>
-          New set
-        </button>
-      </div>
+            New set
+          </button>
+        </li>
+      </ul>
 
       {/* Wider screens: cards. */}
       <div className="hidden grid-cols-2 gap-4 md:grid lg:grid-cols-3">

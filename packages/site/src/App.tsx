@@ -9,7 +9,7 @@ import { midiOfChordDiagram } from "./midiOfChordDiagram";
 import { ChordPlayer, useChordPlayer } from "./audio/useChordPlayer";
 import { ChordDragProvider } from "./dnd/ChordDrag";
 import { SearchBar } from "./SearchBar";
-import { AboutDrawer, AboutFooter } from "./AboutDrawer";
+import { About } from "./About";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { useChordDropZone } from "./dnd/chordDragContext";
 import { cn } from "@/lib/utils";
@@ -120,7 +120,6 @@ export function App() {
             silentModePlayback={silentModePlayback}
             setSilentModePlayback={setSilentModePlayback}
           />
-          <AboutDrawer />
           <button
             onClick={toggleOpen}
             className="flex relative h-10 pointer-coarse:h-11 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-card px-4 text-sm font-medium text-card-foreground shadow-sm transition-all hover:bg-accent dark:ring-1 dark:ring-border"
@@ -147,7 +146,7 @@ export function App() {
             query={query}
           />
         </div>
-        <AboutFooter />
+        <About />
       </div>
       <SearchBar value={query} onChange={handleQueryChange} />
       <FavouritesDrawer
